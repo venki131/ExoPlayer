@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="speed_options">
+        <item>-2x</item>
+        <item>-1.5x</item>
+        <item>1x</item>
+        <item>1.5x</item>
+        <item>2x</item>
+    </string-array>
+    <array name="speed_values">
+        <item>0.5f</item>
+        <item>0.75f</item>
+        <item>1.0f</item>
+        <item>1.5f</item>
+        <item>2.0f</item>
+    </array>
+    <string-array name="quality_options">
+        <item>144p</item>
+        <item>360p</item>
+        <item>480p</item>
+        <item>720p</item>
+        <item>1080p</item>
+    </string-array>
+</resources>

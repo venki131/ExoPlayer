@@ -1,0 +1,409 @@
+package com.example.exovideoplayer
+
+import android.annotation.SuppressLint
+import android.os.Build
+import android.os.Bundle
+import android.os.Handler
+import android.util.Log
+import android.view.View
+import android.view.ViewGroup
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.ImageButton
+import android.widget.ListView
+import android.widget.SeekBar
+import android.widget.Spinner
+import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
+import androidx.media3.common.AudioAttributes
+import androidx.media3.common.MediaItem
+import androidx.media3.common.MimeTypes
+import androidx.media3.common.PlaybackParameters
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
+import com.example.exovideoplayer.databinding.ActivityPlayerBinding
+import java.util.Locale
+import java.util.concurrent.TimeUnit
+
+private const val TAG = "PlayerActivity"
+
+/**
+ * A fullscreen activity to play audio or video streams.
+ */
+class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
+
+    private val viewBinding by lazy(LazyThreadSafetyMode.NONE) {
+        ActivityPlayerBinding.inflate(layoutInflater)
+    }
+
+    private val playbackStateListener: Player.Listener = playbackStateListener()
+    private var player: Player? = null
+
+    private var playWhenReady = true
+    private var mediaItemIndex = 0
+    private var playbackPosition = 0L
+    private var mediaVolume = 0f
+    private var customSeekBar: SeekBar? = null
+    private var volumeButton: ImageButton? = null
+    private var playPauseButton: ImageButton? = null
+    private var fastForward: ImageButton? = null
+    private var fastRewind: ImageButton? = null
+    private var isMuted: Boolean = false
+    private var timeDurationText: TextView? = null
+    private var screenDimension: ImageButton? = null
+    private var isFullScreen: Boolean = true
+    private lateinit var fastForwardAnimation: Animation
+    private lateinit var fastRewindAnimation: Animation
+    private lateinit var playPauseAnimation: Animation
+    private var currentQualityIndex = 0
+    private var selectedQualityPosition = 1
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(viewBinding.root)
+        customSeekBar = viewBinding.videoView.findViewById(R.id.custom_seek_bar)
+        volumeButton = viewBinding.videoView.findViewById(R.id.volume_button)
+        playPauseButton = viewBinding.videoView.findViewById(R.id.play_pause_button)
+        fastForward = viewBinding.videoView.findViewById(R.id.fast_forward)
+        fastRewind = viewBinding.videoView.findViewById(R.id.fast_rewind)
+        timeDurationText = viewBinding.videoView.findViewById(R.id.time_duration)
+        screenDimension = viewBinding.videoView.findViewById(R.id.fullscreen)
+        viewBinding.videoView.findViewById<ImageButton>(R.id.settings).setOnClickListener {
+            showSettingsDialog()
+        }
+        fastForwardAnimation = AnimationUtils.loadAnimation(this, R.anim.fast_foward_animation)
+        fastRewindAnimation = AnimationUtils.loadAnimation(this, R.anim.fast_rewind_animation)
+        playPauseAnimation = AnimationUtils.loadAnimation(this, R.anim.play_pause_animation)
+        customSeekBar?.setOnSeekBarChangeListener(this)
+    }
+
+    public override fun onStart() {
+        super.onStart()
+        if (Build.VERSION.SDK_INT > 23) {
+            initializePlayer()
+        }
+    }
+
+    public override fun onResume() {
+        super.onResume()
+        hideSystemUi()
+        if (Build.VERSION.SDK_INT <= 23 || player == null) {
+            initializePlayer()
+        }
+    }
+
+    public override fun onPause() {
+        super.onPause()
+        if (Build.VERSION.SDK_INT <= 23) {
+            releasePlayer()
+        }
+    }
+
+    public override fun onStop() {
+        super.onStop()
+        if (Build.VERSION.SDK_INT > 23) {
+            releasePlayer()
+        }
+    }
+
+    private fun initializePlayer(videoUrl: String = getString(R.string.media_url_dash)) {
+        // ExoPlayer implements the Player interface
+        player = ExoPlayer.Builder(this)
+            .setAudioAttributes(AudioAttributes.DEFAULT, true)
+            .build()
+            .also { exoPlayer ->
+                viewBinding.videoView.player = exoPlayer
+                // Update the track selection parameters to only pick standard definition tracks
+                exoPlayer.trackSelectionParameters = exoPlayer.trackSelectionParameters
+                    .buildUpon()
+                    .setMaxVideoSizeSd()
+                    .build()
+
+                val mediaItem = MediaItem.Builder()
+                    .setUri(videoUrl)
+                    .setMimeType(MimeTypes.APPLICATION_MPD)
+                    .build()
+                exoPlayer.setMediaItems(listOf(mediaItem), mediaItemIndex, playbackPosition)
+                exoPlayer.playWhenReady = playWhenReady
+                handler.post(updateProgressAction)
+                exoPlayer.addListener(playbackStateListener)
+                volumeButton?.setOnClickListener {
+                    //exoPlayer.toggleMuteState()
+                    isMuted = !isMuted
+                    exoPlayer.volume = if (isMuted) 0f else 1f
+                    updateVolumeButtonState()
+                }
+                playPauseButton?.setOnClickListener {
+                    if (exoPlayer.isPlaying) {
+                        exoPlayer.pause()
+                        handler.removeCallbacks(updateProgressAction)
+                    } else {
+                        exoPlayer.play()
+                        handler.post(updateProgressAction)
+                    }
+                    it.startAnimation(playPauseAnimation)
+                    updatePlayPauseButtonState(exoPlayer)
+                }
+                fastForward?.setOnClickListener {
+                    val currentPosition = exoPlayer.currentPosition
+                    it.startAnimation(fastForwardAnimation)
+                    exoPlayer.seekTo(currentPosition + 10000) // Fast forward 10 seconds
+                }
+
+                fastRewind?.setOnClickListener {
+                    val currentPosition = exoPlayer.currentPosition
+                    it?.startAnimation(fastRewindAnimation)
+                    exoPlayer.seekTo(currentPosition - 10000) // Rewind 10 seconds
+                }
+                screenDimension?.setOnClickListener {
+                    isFullScreen = !isFullScreen
+                    toggleFullscreen(isFullScreen)
+                }
+                exoPlayer.prepare()
+            }
+    }
+
+    private fun releasePlayer() {
+        player?.let { player ->
+            playbackPosition = player.currentPosition
+            mediaItemIndex = player.currentMediaItemIndex
+            playWhenReady = player.playWhenReady
+            player.removeListener(playbackStateListener)
+            handler.removeCallbacks(updateProgressAction)
+            player.release()
+        }
+        player = null
+    }
+    private fun updateVolumeButtonState() {
+        val muteIcon = if (isMuted) {
+            R.drawable.ic_volume_off
+        } else {
+            R.drawable.ic_volume_up
+        }
+        volumeButton?.setImageResource(muteIcon)
+    }
+    private fun toggleFullscreen(isFullscreen: Boolean) {
+        if (isFullscreen) {
+            val layoutParams = viewBinding.videoView.layoutParams
+            layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
+            layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
+            viewBinding.videoView.layoutParams = layoutParams
+            screenDimension?.setImageResource(R.drawable.ic_fullscreen_exit)
+        } else {
+            val layoutParams = viewBinding.videoView.layoutParams
+            layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+            layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
+            viewBinding.videoView.layoutParams = layoutParams
+            screenDimension?.setImageResource(R.drawable.ic_fullscreen)
+        }
+    }
+
+    private fun updatePlayPauseButtonState(exoPlayer: ExoPlayer) {
+        val playPauseIcon = if (exoPlayer.isPlaying) {
+            R.drawable.ic_pause_circle
+        } else {
+            R.drawable.play_circle
+        }
+        playPauseButton?.setImageResource(playPauseIcon)
+    }
+
+    private fun updateProgress() {
+        player?.let {
+            val currentPosition = it.currentPosition
+            val totalDuration = it.duration
+            val progressPercentage = (currentPosition * 100 / totalDuration).toInt()
+            customSeekBar?.progress = progressPercentage
+            val formattedProgress = formatDuration(currentPosition)
+            val formattedTotalDuration = formatDuration(totalDuration)
+            val progressText = "$formattedProgress / $formattedTotalDuration"
+            timeDurationText?.text = progressText
+        }
+    }
+
+    private val handler = Handler()
+
+    private val updateProgressAction = object : Runnable {
+        override fun run() {
+            updateProgress()
+            handler.postDelayed(this, 1000) // Update every second
+        }
+    }
+
+    private fun formatDuration(duration: Long): String {
+        val minutes = TimeUnit.MILLISECONDS.toMinutes(duration)
+        val seconds =
+            TimeUnit.MILLISECONDS.toSeconds(duration) - TimeUnit.MINUTES.toSeconds(minutes)
+        return String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
+    }
+
+
+    @SuppressLint("InlinedApi")
+    private fun hideSystemUi() {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        WindowInsetsControllerCompat(window, viewBinding.videoView).let { controller ->
+            controller.hide(WindowInsetsCompat.Type.systemBars())
+            controller.systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+        }
+    }
+
+    private fun showSettingsDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_settings, null)
+        val qualityOption = dialogView.findViewById<TextView>(R.id.qualityOption)
+        val speedOption = dialogView.findViewById<TextView>(R.id.speedOption)
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .create()
+
+        qualityOption.setOnClickListener {
+            // Handle quality option click
+            showQualityDialogOptions1()
+            dialog.dismiss()
+        }
+
+        speedOption.setOnClickListener {
+            // Handle speed option click
+            showSpeedOptionsDialog()
+            dialog.dismiss()
+        }
+
+        dialog.show()
+    }
+
+    private fun showSpeedOptionsDialog() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_speed_spinner, null)
+        val speedSpinner = dialogView.findViewById<Spinner>(R.id.speedSpinner)
+        val speedValues = resources.obtainTypedArray(R.array.speed_values)
+
+        speedSpinner.adapter = ArrayAdapter.createFromResource(
+            this,
+            R.array.speed_options,
+            android.R.layout.simple_spinner_dropdown_item
+        )
+
+        speedSpinner.setSelection(2)
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setTitle("Select Speed")
+            .create()
+
+        speedSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val speedValues = speedValues.getFloat(position, 1.0f)
+                player?.setPlaybackSpeed(speedValues)
+                //dialog.dismiss()
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+
+        }
+
+        dialog.show()
+    }
+
+    private fun showQualityDialogOptions() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_speed_spinner, null)
+        val speedSpinner = dialogView.findViewById<Spinner>(R.id.speedSpinner)
+        speedSpinner.adapter = ArrayAdapter.createFromResource(
+            this,
+            R.array.quality_options,
+            android.R.layout.simple_spinner_dropdown_item
+        )
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .setTitle("Select Quality")
+            .create()
+
+        speedSpinner.setSelection(selectedQualityPosition)
+
+        speedSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                if (position != selectedQualityPosition) {
+                    selectedQualityPosition = position
+                    dialog.dismiss()
+                    initializePlayer()
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+
+        }
+
+        dialog.show()
+    }
+
+    private val qualityOptions = arrayOf("144p", "240p", "360p", "480p", "720p", "1080p")
+    private fun showQualityDialogOptions1() {
+        val dialogView = layoutInflater.inflate(R.layout.dialog_quality_selection, null)
+        val titleTextView = dialogView.findViewById<TextView>(R.id.titleTextView)
+        val qualityListView = dialogView.findViewById<ListView>(R.id.qualityListView)
+
+        titleTextView.text = "Select Quality"
+
+        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, qualityOptions)
+        qualityListView.adapter = adapter
+
+        val dialog = AlertDialog.Builder(this)
+            .setView(dialogView)
+            .create()
+
+        qualityListView.setOnItemClickListener { _, _, position, _ ->
+            // Handle quality selection here
+            val selectedQuality = qualityOptions[position]
+            if (position != selectedQualityPosition) {
+                selectedQualityPosition = position
+                dialog.dismiss()
+                //initializePlayer()
+            }
+        }
+
+        dialog.show()
+    }
+
+    private fun playbackStateListener() = object : Player.Listener {
+        override fun onPlaybackStateChanged(playbackState: Int) {
+            val stateString: Unit = when (playbackState) {
+                ExoPlayer.STATE_IDLE -> {}
+                ExoPlayer.STATE_BUFFERING -> {
+                    updateProgress()
+                }
+
+                ExoPlayer.STATE_READY -> {
+                    viewBinding.videoView.useController = true
+                }
+                ExoPlayer.STATE_ENDED -> {}
+                else -> { viewBinding.videoView.useController = false }
+            }
+            Log.d(TAG, "changed state to $stateString")
+        }
+
+        override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters) {
+            val playbackSpeedTextView = viewBinding.videoView.findViewById<TextView>(R.id.playbackSpeedTextView)
+            playbackSpeedTextView.text = "${playbackParameters.speed}x"
+        }
+    }
+
+    override fun onProgressChanged(p0: SeekBar?, progress: Int, fromUser: Boolean) {
+        if (fromUser) {
+            player?.let {
+                val totalDuration = it.duration
+                val newPosition = (totalDuration * progress) / 100
+                it.seekTo(newPosition)
+                updateProgress()
+            }
+        }
+    }
+
+    override fun onStartTrackingTouch(p0: SeekBar?) {}
+
+    override fun onStopTrackingTouch(p0: SeekBar?) {}
+}
