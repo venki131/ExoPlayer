@@ -1,20 +1,17 @@
 package com.example.exovideoplayer
 
 import android.annotation.SuppressLint
+import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
-import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
-import android.widget.AdapterView
-import android.widget.ArrayAdapter
 import android.widget.ImageButton
 import android.widget.ListView
 import android.widget.SeekBar
-import android.widget.Spinner
 import android.widget.TextView
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
@@ -62,7 +59,7 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
     private lateinit var fastRewindAnimation: Animation
     private lateinit var playPauseAnimation: Animation
     private var currentQualityIndex = 0
-    private var selectedQualityPosition = 1
+    private var selectedQuality = 1
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -134,7 +131,6 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
                 handler.post(updateProgressAction)
                 exoPlayer.addListener(playbackStateListener)
                 volumeButton?.setOnClickListener {
-                    //exoPlayer.toggleMuteState()
                     isMuted = !isMuted
                     exoPlayer.volume = if (isMuted) 0f else 1f
                     updateVolumeButtonState()
@@ -195,12 +191,14 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
             layoutParams.width = ViewGroup.LayoutParams.MATCH_PARENT
             viewBinding.videoView.layoutParams = layoutParams
             screenDimension?.setImageResource(R.drawable.ic_fullscreen_exit)
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         } else {
             val layoutParams = viewBinding.videoView.layoutParams
             layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
             layoutParams.width = ViewGroup.LayoutParams.WRAP_CONTENT
             viewBinding.videoView.layoutParams = layoutParams
             screenDimension?.setImageResource(R.drawable.ic_fullscreen)
+            requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
         }
     }
 
@@ -278,34 +276,43 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
     }
 
     private var selectedSpeedPosition: Int = 2 // Default selection
+    private val playbackSpeedOptions = arrayOf("-2x", "-1.5x", "1x", "1.5x", "2x")
+    private val playbackSpeedValues = mutableMapOf(
+        "-2x" to 0.5f,
+        "-1.5x" to 0.75f,
+        "1x" to 1.0f,
+        "1.5x" to 1.5f,
+        "2x" to 2.0f
+    )
+
     private fun showSpeedOptionsDialog() {
-        val dialogView = layoutInflater.inflate(R.layout.dialog_speed_spinner, null)
-        val speedSpinner = dialogView.findViewById<Spinner>(R.id.speedSpinner)
-        val speedValues = resources.obtainTypedArray(R.array.speed_values)
+        val dialogView = layoutInflater.inflate(R.layout.dialog_quality_selection, null)
+        val titleTextView = dialogView.findViewById<TextView>(R.id.titleTextView)
+        val playbackListView = dialogView.findViewById<ListView>(R.id.qualityListView)
 
-        speedSpinner.adapter = ArrayAdapter.createFromResource(
-            this,
-            R.array.speed_options,
-            android.R.layout.simple_spinner_dropdown_item
-        )
+        titleTextView.text = getString(R.string.playback_speed)
 
-        speedSpinner.setSelection(selectedSpeedPosition)
+        val adapter = CustomSelectionAdapter(this, playbackSpeedOptions)
+        playbackListView.adapter = adapter
 
         val dialog = AlertDialog.Builder(this)
             .setView(dialogView)
-            .setTitle("Select Speed")
             .create()
 
-        speedSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val speedValue = speedValues.getFloat(position, 1.0f)
-                player?.setPlaybackSpeed(speedValue)
+        playbackListView.setOnItemClickListener { _, _, position, _ ->
+            // Handle playback speed selection here
+            val selectedSpeedOption = playbackSpeedOptions[position]
+            val selectedSpeed = playbackSpeedValues[selectedSpeedOption]
+
+            selectedSpeed?.let {
+                player?.setPlaybackSpeed(selectedSpeed)
                 selectedSpeedPosition = position
+                dialog.dismiss()
             }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-
         }
+
+        adapter.setSelectedPosition(selectedSpeedPosition)
+        adapter.notifyDataSetChanged()
 
         dialog.show()
     }
@@ -316,9 +323,9 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
         val titleTextView = dialogView.findViewById<TextView>(R.id.titleTextView)
         val qualityListView = dialogView.findViewById<ListView>(R.id.qualityListView)
 
-        titleTextView.text = "Select Quality"
+        titleTextView.text = getString(R.string.quality)
 
-        val adapter = ArrayAdapter(this, android.R.layout.simple_list_item_1, qualityOptions)
+        val adapter = CustomSelectionAdapter(this, qualityOptions)
         qualityListView.adapter = adapter
 
         val dialog = AlertDialog.Builder(this)
@@ -327,13 +334,13 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
 
         qualityListView.setOnItemClickListener { _, _, position, _ ->
             // Handle quality selection here
-            val selectedQuality = qualityOptions[position]
-            if (position != selectedQualityPosition) {
-                selectedQualityPosition = position
-                dialog.dismiss()
-                //initializePlayer()
-            }
+            selectedQuality = position
+            dialog.dismiss()
+            updatePlayerMediaItem()
         }
+
+        adapter.setSelectedPosition(selectedQuality)
+        adapter.notifyDataSetChanged()
 
         dialog.show()
     }
@@ -355,10 +362,30 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
             Log.d(TAG, "changed state to $stateString")
         }
 
-        override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters) {
-            //val playbackSpeedTextView = viewBinding.videoView.findViewById<TextView>(R.id.playbackSpeedTextView)
-            //playbackSpeedTextView.text = "${playbackParameters.speed}x"
-        }
+        override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters) {}
+    }
+
+    private val qualityUrls = arrayOf(
+        "url_for_144p",
+        "url_for_240p",
+        "url_for_360p",
+        "url_for_480p",
+        "url_for_720p",
+        "url_for_1080p"
+    )
+
+    private fun updatePlayerMediaItem() {
+        val currentMediaItem = player?.currentMediaItem
+        val currentPosition = player?.currentPosition ?: 0
+        val newMediaItem = MediaItem.Builder()
+            .setUri(getString(R.string.media_url_dash)/*qualityUrls[selectedQuality]*/)
+            .setMimeType(MimeTypes.APPLICATION_MPD)
+            .build()
+
+        player?.setMediaItems(listOf(newMediaItem), mediaItemIndex, playbackPosition)
+        player?.seekTo(currentPosition)
+        player?.prepare()
+        player?.play()
     }
 
     override fun onProgressChanged(p0: SeekBar?, progress: Int, fromUser: Boolean) {
