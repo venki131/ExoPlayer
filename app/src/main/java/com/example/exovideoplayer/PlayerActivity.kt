@@ -264,7 +264,7 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
 
         qualityOption.setOnClickListener {
             // Handle quality option click
-            showQualityDialogOptions1()
+            showQualityDialogOptions()
             dialog.dismiss()
         }
 
@@ -277,6 +277,7 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
         dialog.show()
     }
 
+    private var selectedSpeedPosition: Int = 2 // Default selection
     private fun showSpeedOptionsDialog() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_speed_spinner, null)
         val speedSpinner = dialogView.findViewById<Spinner>(R.id.speedSpinner)
@@ -288,7 +289,7 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
             android.R.layout.simple_spinner_dropdown_item
         )
 
-        speedSpinner.setSelection(2)
+        speedSpinner.setSelection(selectedSpeedPosition)
 
         val dialog = AlertDialog.Builder(this)
             .setView(dialogView)
@@ -297,41 +298,9 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
 
         speedSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                val speedValues = speedValues.getFloat(position, 1.0f)
-                player?.setPlaybackSpeed(speedValues)
-                //dialog.dismiss()
-            }
-
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-
-        }
-
-        dialog.show()
-    }
-
-    private fun showQualityDialogOptions() {
-        val dialogView = layoutInflater.inflate(R.layout.dialog_speed_spinner, null)
-        val speedSpinner = dialogView.findViewById<Spinner>(R.id.speedSpinner)
-        speedSpinner.adapter = ArrayAdapter.createFromResource(
-            this,
-            R.array.quality_options,
-            android.R.layout.simple_spinner_dropdown_item
-        )
-
-        val dialog = AlertDialog.Builder(this)
-            .setView(dialogView)
-            .setTitle("Select Quality")
-            .create()
-
-        speedSpinner.setSelection(selectedQualityPosition)
-
-        speedSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                if (position != selectedQualityPosition) {
-                    selectedQualityPosition = position
-                    dialog.dismiss()
-                    initializePlayer()
-                }
+                val speedValue = speedValues.getFloat(position, 1.0f)
+                player?.setPlaybackSpeed(speedValue)
+                selectedSpeedPosition = position
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}
@@ -342,7 +311,7 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
     }
 
     private val qualityOptions = arrayOf("144p", "240p", "360p", "480p", "720p", "1080p")
-    private fun showQualityDialogOptions1() {
+    private fun showQualityDialogOptions() {
         val dialogView = layoutInflater.inflate(R.layout.dialog_quality_selection, null)
         val titleTextView = dialogView.findViewById<TextView>(R.id.titleTextView)
         val qualityListView = dialogView.findViewById<ListView>(R.id.qualityListView)
@@ -387,8 +356,8 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
         }
 
         override fun onPlaybackParametersChanged(playbackParameters: PlaybackParameters) {
-            val playbackSpeedTextView = viewBinding.videoView.findViewById<TextView>(R.id.playbackSpeedTextView)
-            playbackSpeedTextView.text = "${playbackParameters.speed}x"
+            //val playbackSpeedTextView = viewBinding.videoView.findViewById<TextView>(R.id.playbackSpeedTextView)
+            //playbackSpeedTextView.text = "${playbackParameters.speed}x"
         }
     }
 
