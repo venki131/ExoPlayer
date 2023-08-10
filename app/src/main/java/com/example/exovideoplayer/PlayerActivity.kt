@@ -83,7 +83,7 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
     public override fun onStart() {
         super.onStart()
         if (Build.VERSION.SDK_INT > 23) {
-            initializePlayer()
+            //initializePlayer()
         }
     }
 
@@ -91,7 +91,7 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
         super.onResume()
         hideSystemUi()
         if (Build.VERSION.SDK_INT <= 23 || player == null) {
-            initializePlayer()
+            //initializePlayer()
         }
     }
 
@@ -107,6 +107,22 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
         if (Build.VERSION.SDK_INT > 23) {
             releasePlayer()
         }
+    }
+
+    public fun playVideo(videoUrl: String) {
+        initializePlayer(videoUrl = videoUrl)
+    }
+
+    public fun updateVideoAfterQualityChange(updatedVideoUrl: String?) {
+        updatePlayerMediaItem(updatedVideoUrl = updatedVideoUrl)
+    }
+
+    public fun getSelectedQuality() = selectedQuality
+
+    public fun getSelectedPlaybackSpeed() = selectedSpeedPosition
+
+    public fun settings(callback: QualitySelectionCallback) {
+        showSettingsDialog(callback)
     }
 
     private fun initializePlayer(videoUrl: String = getString(R.string.media_url_dash)) {
@@ -251,7 +267,7 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
         }
     }
 
-    private fun showSettingsDialog() {
+    private fun showSettingsDialog(qualitySelectionCallback: QualitySelectionCallback? = null) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_settings, null)
         val qualityOption = dialogView.findViewById<TextView>(R.id.qualityOption)
         val speedOption = dialogView.findViewById<TextView>(R.id.speedOption)
@@ -262,7 +278,7 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
 
         qualityOption.setOnClickListener {
             // Handle quality option click
-            showQualityDialogOptions()
+            showQualityDialogOptions(qualitySelectionCallback)
             dialog.dismiss()
         }
 
@@ -318,7 +334,7 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
     }
 
     private val qualityOptions = arrayOf("144p", "240p", "360p", "480p", "720p", "1080p")
-    private fun showQualityDialogOptions() {
+    private fun showQualityDialogOptions(callback: QualitySelectionCallback? = null) {
         val dialogView = layoutInflater.inflate(R.layout.dialog_quality_selection, null)
         val titleTextView = dialogView.findViewById<TextView>(R.id.titleTextView)
         val qualityListView = dialogView.findViewById<ListView>(R.id.qualityListView)
@@ -336,7 +352,7 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
             // Handle quality selection here
             selectedQuality = position
             dialog.dismiss()
-            updatePlayerMediaItem()
+            callback?.onQualitySelected(selectedQuality)
         }
 
         adapter.setSelectedPosition(selectedQuality)
@@ -374,11 +390,11 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
         "url_for_1080p"
     )
 
-    private fun updatePlayerMediaItem() {
+    private fun updatePlayerMediaItem(updatedVideoUrl: String? = null) {
         val currentMediaItem = player?.currentMediaItem
         val currentPosition = player?.currentPosition ?: 0
         val newMediaItem = MediaItem.Builder()
-            .setUri(getString(R.string.media_url_dash)/*qualityUrls[selectedQuality]*/)
+            .setUri(updatedVideoUrl ?: getString(R.string.media_url_dash))
             .setMimeType(MimeTypes.APPLICATION_MPD)
             .build()
 
