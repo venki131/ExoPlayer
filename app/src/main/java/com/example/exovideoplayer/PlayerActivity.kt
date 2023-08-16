@@ -2,14 +2,21 @@ package com.example.exovideoplayer
 
 import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
+import android.graphics.BitmapFactory
+import android.graphics.drawable.BitmapDrawable
+import android.media.ThumbnailUtils
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
+import android.provider.MediaStore
 import android.util.Log
+import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.view.animation.Animation
 import android.view.animation.AnimationUtils
 import android.widget.ImageButton
+import android.widget.ImageView
 import android.widget.ListView
 import android.widget.SeekBar
 import android.widget.TextView
@@ -27,6 +34,7 @@ import androidx.media3.exoplayer.ExoPlayer
 import com.example.exovideoplayer.databinding.ActivityPlayerBinding
 import java.util.Locale
 import java.util.concurrent.TimeUnit
+
 
 private const val TAG = "PlayerActivity"
 
@@ -48,6 +56,7 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
     private var mediaVolume = 0f
     private var customSeekBar: SeekBar? = null
     private var volumeButton: ImageButton? = null
+    private var thumbanail: ImageView? = null
     private var playPauseButton: ImageButton? = null
     private var fastForward: ImageButton? = null
     private var fastRewind: ImageButton? = null
@@ -60,7 +69,7 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
     private lateinit var playPauseAnimation: Animation
     private var currentQualityIndex = 0
     private var selectedQuality = 1
-
+    private val videoUrl = "https://storage.googleapis.com/stockgro-feed-assets-dev/post_media/9fcc25e4-f616-4a40-96cb-94b6398c230e.mp4"
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(viewBinding.root)
@@ -74,6 +83,8 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
         viewBinding.videoView.findViewById<ImageButton>(R.id.settings).setOnClickListener {
             showSettingsDialog()
         }
+        thumbanail = viewBinding.thumbnailImage
+        setVideoThumbnail()
         fastForwardAnimation = AnimationUtils.loadAnimation(this, R.anim.fast_foward_animation)
         fastRewindAnimation = AnimationUtils.loadAnimation(this, R.anim.fast_rewind_animation)
         playPauseAnimation = AnimationUtils.loadAnimation(this, R.anim.play_pause_animation)
@@ -83,7 +94,7 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
     public override fun onStart() {
         super.onStart()
         if (Build.VERSION.SDK_INT > 23) {
-            initializePlayer()
+            initializePlayer(videoUrl)
         }
     }
 
@@ -91,7 +102,7 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
         super.onResume()
         hideSystemUi()
         if (Build.VERSION.SDK_INT <= 23 || player == null) {
-            initializePlayer()
+            initializePlayer(videoUrl)
         }
     }
 
@@ -109,6 +120,26 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
         }
     }
 
+    @SuppressLint("UnsafeOptInUsageError")
+    private fun setVideoThumbnail() {
+        //this is with surface view, needs to do some work on this
+        //val textureView = viewBinding.videoView.videoSurfaceView as TextureView
+        //val bitmap = textureView.bitmap
+        //thumbanail?.setImageBitmap(bitmap)
+        val thumbnailImage = BitmapFactory.decodeResource(this.resources, R.drawable.google_logo)
+        thumbanail?.setImageBitmap(thumbnailImage)
+        thumbanail?.visibility = View.VISIBLE
+
+        /* Testing code below
+        val thumb = ThumbnailUtils.createVideoThumbnail(
+            "file path/url",
+            MediaStore.Images.Thumbnails.MINI_KIND
+        )
+        val bitmapDrawable = BitmapDrawable(thumbnailImage)
+        viewBinding.videoView.setBackgroundDrawable(bitmapDrawable)
+        */
+    }
+
     private fun initializePlayer(videoUrl: String = getString(R.string.media_url_dash)) {
         // ExoPlayer implements the Player interface
         player = ExoPlayer.Builder(this)
@@ -122,10 +153,12 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
                     .setMaxVideoSizeSd()
                     .build()
 
-                val mediaItem = MediaItem.Builder()
+                //for dash URL streaming
+                /*val mediaItem = MediaItem.Builder()
                     .setUri(videoUrl)
                     .setMimeType(MimeTypes.APPLICATION_MPD)
-                    .build()
+                    .build()*/
+                val mediaItem = MediaItem.fromUri(videoUrl)
                 exoPlayer.setMediaItems(listOf(mediaItem), mediaItemIndex, playbackPosition)
                 exoPlayer.playWhenReady = playWhenReady
                 handler.post(updateProgressAction)
@@ -354,7 +387,9 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
                 }
 
                 ExoPlayer.STATE_READY -> {
+                    thumbanail?.visibility = View.GONE
                     viewBinding.videoView.useController = true
+                    window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
                 }
                 ExoPlayer.STATE_ENDED -> {}
                 else -> { viewBinding.videoView.useController = false }

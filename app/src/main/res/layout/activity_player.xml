@@ -3,6 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:background="#000000">
 
     <androidx.media3.ui.PlayerView
@@ -11,5 +12,13 @@
         android:layout_height="match_parent"
         app:use_controller="false"
         app:controller_layout_id="@layout/custom_player_control_layout"/>
+
+    <ImageView
+        android:id="@+id/thumbnail_image"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:src="@drawable/google_logo"
+        tools:visibility="visible"
+        android:visibility="gone"/>
 
 </FrameLayout>
