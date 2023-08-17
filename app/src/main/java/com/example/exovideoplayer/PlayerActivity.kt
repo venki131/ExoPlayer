@@ -3,12 +3,9 @@ package com.example.exovideoplayer
 import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
 import android.graphics.BitmapFactory
-import android.graphics.drawable.BitmapDrawable
-import android.media.ThumbnailUtils
 import android.os.Build
 import android.os.Bundle
 import android.os.Handler
-import android.provider.MediaStore
 import android.util.Log
 import android.view.View
 import android.view.ViewGroup
@@ -31,6 +28,7 @@ import androidx.media3.common.MimeTypes
 import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.recyclerview.widget.RecyclerView
 import com.example.exovideoplayer.databinding.ActivityPlayerBinding
 import java.util.Locale
 import java.util.concurrent.TimeUnit
@@ -84,17 +82,18 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
             showSettingsDialog()
         }
         thumbanail = viewBinding.thumbnailImage
-        setVideoThumbnail()
+        //setVideoThumbnail()
         fastForwardAnimation = AnimationUtils.loadAnimation(this, R.anim.fast_foward_animation)
         fastRewindAnimation = AnimationUtils.loadAnimation(this, R.anim.fast_rewind_animation)
         playPauseAnimation = AnimationUtils.loadAnimation(this, R.anim.play_pause_animation)
         customSeekBar?.setOnSeekBarChangeListener(this)
+        initRvAdapter()
     }
 
     public override fun onStart() {
         super.onStart()
         if (Build.VERSION.SDK_INT > 23) {
-            initializePlayer(videoUrl)
+            //initializePlayer(videoUrl)
         }
     }
 
@@ -102,9 +101,23 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
         super.onResume()
         hideSystemUi()
         if (Build.VERSION.SDK_INT <= 23 || player == null) {
-            initializePlayer(videoUrl)
+            //initializePlayer(videoUrl)
         }
     }
+
+    private var recyclerView: RecyclerView? = null
+
+    private fun initRvAdapter() {
+        recyclerView = viewBinding.videoRecyclerview
+        val videoList = mutableListOf(
+            getString(R.string.media_url_mp4),
+            getString(R.string.media_url_mp3)
+        )
+
+        val adapter = VideoRvAdapter(videoList)
+        recyclerView?.adapter = adapter
+    }
+
 
     public override fun onPause() {
         super.onPause()

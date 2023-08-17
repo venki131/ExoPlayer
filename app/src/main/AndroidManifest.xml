@@ -13,7 +13,6 @@
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
             android:label="@string/player_activity_name"
             android:theme="@style/PlayerTheme"
-            android:screenOrientation="sensorLandscape"
             android:hardwareAccelerated="true"
             android:exported="true">
             <intent-filter>
