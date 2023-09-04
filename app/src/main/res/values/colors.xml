@@ -10,5 +10,6 @@
     <color name="colorPrimary">#FFFFFF</color>
     <color name="colorPrimaryDark">#000000</color>
     <color name="colorAccent">#FF4081</color>
+    <color name="purple_text">#FF6200EE</color>
     <color name="player_control_background">#000000</color>
 </resources>
