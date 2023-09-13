@@ -22,6 +22,9 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MimeTypes
@@ -30,6 +33,7 @@ import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.recyclerview.widget.RecyclerView
 import com.example.exovideoplayer.databinding.ActivityPlayerBinding
+import kotlinx.coroutines.launch
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
@@ -71,6 +75,7 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(viewBinding.root)
+        scrollView()
         customSeekBar = viewBinding.videoView.findViewById(R.id.custom_seek_bar)
         volumeButton = viewBinding.videoView.findViewById(R.id.volume_button)
         playPauseButton = viewBinding.videoView.findViewById(R.id.play_pause_button)
@@ -88,6 +93,18 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
         playPauseAnimation = AnimationUtils.loadAnimation(this, R.anim.play_pause_animation)
         customSeekBar?.setOnSeekBarChangeListener(this)
         initRvAdapter()
+    }
+
+    fun scrollView() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                val scrollRuler = viewBinding.scrollableRuler
+                scrollRuler.rulerStartValue = 0
+                scrollRuler.rulerEndValue = 1000
+                scrollRuler.moveToIndex(450)
+                scrollRuler.enableShadow(false)
+            }
+        }
     }
 
     public override fun onStart() {

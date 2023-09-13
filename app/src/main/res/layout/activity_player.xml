@@ -40,6 +40,16 @@
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/item_video" />
 
+        <!--<com.github.mikephil.charting.charts.LineChart
+            android:id="@+id/history_chart"
+            android:layout_width="0dp"
+            android:layout_height="164dp"
+            android:layout_marginHorizontal="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>-->
+
+
         <com.example.exovideoplayer.ScrollableRulerView
             android:id="@+id/scrollable_ruler"
             android:layout_width="0dp"

@@ -9,4 +9,5 @@
     <string name="logo">Google logo</string>
     <string name="playback_speed">Playback Speed</string>
     <string name="quality">Quality</string>
+    <string name="formatted_marker_text">%1$s | %2$s | %3$s%%</string>
 </resources>
