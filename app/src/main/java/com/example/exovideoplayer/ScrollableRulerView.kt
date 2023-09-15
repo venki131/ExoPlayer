@@ -1,6 +1,8 @@
 package com.example.exovideoplayer
 
-//import com.assetgro.stockgro.utils.log.Logger
+/*import com.assetgro.stockgro.R
+import com.assetgro.stockgro.utils.common.topx
+import com.assetgro.stockgro.utils.log.Logger*/
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -11,10 +13,10 @@ import android.graphics.PointF
 import android.graphics.PorterDuff
 import android.graphics.RectF
 import android.util.AttributeSet
-import android.util.Log
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -24,11 +26,11 @@ import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
-class ScrollableRulerView1(context: Context, attrs: AttributeSet?) : View(context, attrs) {
+class ScrollableRulerView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
     private var cachedBitmap: Bitmap? = null
     private var cacheValid = false
-
+    private var isContentVisible = false
     companion object {
         const val TAG = "ScrollableRulerView"
     }
@@ -38,10 +40,12 @@ class ScrollableRulerView1(context: Context, attrs: AttributeSet?) : View(contex
     private var paintText = Paint(Paint.ANTI_ALIAS_FLAG)
     private var paintLegend = Paint(Paint.ANTI_ALIAS_FLAG)
 
-    private var isPressed = false
+    private var rulerViewPressed: Boolean = false
 
     private var density: Float = context.resources.displayMetrics.density
     private var padding = 4 * density
+    private var textBoxWidthPadding = 12 * density
+    private var textBoxHeightPadding = 8 * density
 
     private var path = Path()
     private val rectangle = RectF()
@@ -54,12 +58,13 @@ class ScrollableRulerView1(context: Context, attrs: AttributeSet?) : View(contex
     private var gapBetweenViews = 12 * density
     private var lineHeight = 32 * density
     private var gapBetweenLines = 8 * density
+    private val textPosition = PointF()
 
     private var debouncePeriod: Long = 500
     private var searchJob: Job? = null
     lateinit var coroutineScope: CoroutineScope
     private var isShadowEnabled = false
-    private val textPosition = PointF()
+
     var scrollableRulerFormatter: ScrollableRulerFormatter? = null
 
 
@@ -85,7 +90,7 @@ class ScrollableRulerView1(context: Context, attrs: AttributeSet?) : View(contex
 
 
     val screenWidth = context.resources.displayMetrics.widthPixels
-    var middleOfScreen = screenWidth / 2.0f
+    var middleOfScreen = (screenWidth - 32) / 2.0f
 
     var initialXValue = 0F
     private var lastTouchX = 0f
@@ -107,17 +112,17 @@ class ScrollableRulerView1(context: Context, attrs: AttributeSet?) : View(contex
             searchJob = coroutineScope.launch {
                 rulerValue.let {
                     delay(debouncePeriod)
-                    Log.d(
+                    /*Logger.d(
                         TAG,
                         "Value emitted after scroll: ${
                             scrollableRulerFormatter?.getMarkerValue(rulerValue)
                         }"
-                    )
+                    )*/
                     callback.onRulerValueChanged(rulerValue)
                 }
             }
         }
-
+        isContentVisible = true
         invalidateCache()
     }
 
@@ -125,8 +130,9 @@ class ScrollableRulerView1(context: Context, attrs: AttributeSet?) : View(contex
         isShadowEnabled = enable
         invalidate() // Invalidate the view to trigger a redraw with the updated shadow state
     }
-    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
 
+
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         // Calculate the new rectangle dimensions based on the content and view's size
         val textSize = paintText.textSize // Get the text size used for the pointer text
@@ -147,7 +153,6 @@ class ScrollableRulerView1(context: Context, attrs: AttributeSet?) : View(contex
         // Invalidate the cache to trigger a redraw with the updated dimensions
         invalidateCache()
     }
-
 
 
     private var rulerLength =
@@ -236,59 +241,84 @@ class ScrollableRulerView1(context: Context, attrs: AttributeSet?) : View(contex
         var startX = initialXValue
         var count = rulerStartValue
 
+        val layoutParams = layoutParams as? ViewGroup.MarginLayoutParams
+        val leftMargin = 0//layoutParams?.leftMargin ?: 16
+        val rightMargin = 0//layoutParams?.rightMargin ?: 16
+
+        // Calculate the text length dynamically based on the content
+        val textLength = paintText.measureText(scrollableRulerFormatter?.getMarkerValue(rulerValue) ?: rulerValue.toString())
+
+        // Calculate the rectangle dimensions based on the text length and padding
+        val textSize = paintText.textSize
+        val rectangleWidth = textLength + textBoxWidthPadding * 2 // Adjust padding as needed
+        val rectangleHeight = textSize * 0.5f + textBoxHeightPadding * 2 // Adjust padding as needed
+
+        // Recalculate any positions or values that depend on the view size
+        middleOfScreen = width / 2.0f
+        val textX = middleOfScreen
+        val textY =
+            (rectangleHeight / 2f) + (textSizePointerText / 2f) - (paintText.descent() / 2f)
+        if (rulerValue > rulerEndValue) {
+            rulerValue = rulerEndValue
+        }
+
+        textPosition.set(textX, textY)
+
+
         canvas.apply {
 
             if (isShadowEnabled) {
-                displayShadow(isPressed)
+                displayShadow(rulerViewPressed)
             } else {
                 displayShadow(false)
             }
 
-            val centerX = width / 2.0f // Center of the canvas
-
+            val centerX = (width - leftMargin - rightMargin) / 2.0f // Center of the canvas
             // Calculate the left and right positions of rectangles
-            val leftRectX = centerX - (rectangleWidth / 2f)
-            val rightRectX = centerX + (rectangleWidth / 2f)
+            val leftRectX = centerX - (rectangleWidth / 2f) - leftMargin
+            val rightRectX = centerX + (rectangleWidth / 2f) + rightMargin
 
-            rectangle.set(
-                leftRectX,
-                0f,
-                rightRectX,
-                rectangleHeight
-            )
-            path.addRoundRect(rectangle, rectangleRadius, rectangleRadius, Path.Direction.CW)
+            if (isContentVisible) {
+                rectangle.set(
+                    leftRectX,
+                    0f,
+                    rightRectX,
+                    rectangleHeight
+                )
+                path.addRoundRect(rectangle, rectangleRadius, rectangleRadius, Path.Direction.CW)
 
-            path.moveTo(centerX - (2.topx / 2f), rectangleHeight)
+                path.moveTo(centerX - (2.topx / 2f), rectangleHeight)
 
-            val leftRect2X = centerX - 2.topx
-            val rightRect2X = centerX + 2.topx
+                val leftRect2X = centerX - 2.topx
+                val rightRect2X = centerX + 2.topx
 
-            rectangle2.set(
-                leftRect2X,
-                gapBetweenViews,
-                rightRect2X,
-                topGap + lineHeight
-            )
-            path.addRoundRect(rectangle2, rectangleRadius, rectangleRadius, Path.Direction.CW)
-            drawPath(path, paint)
+                rectangle2.set(
+                    leftRect2X,
+                    gapBetweenViews,
+                    rightRect2X,
+                    topGap + lineHeight
+                )
+                path.addRoundRect(rectangle2, rectangleRadius, rectangleRadius, Path.Direction.CW)
+                drawPath(path, paint)
+            }
 
             /**
              * disabling shadow for the cubic figure in-order to avoid the black patch on the rectangle
              */
             displayShadow() // Disable shadow
-            path.moveTo(middleOfScreen - rectangleWidth / 6f, rectangleHeight)
+            path.moveTo(centerX - rectangleWidth / 6f, rectangleHeight)
             path.cubicTo(
-                middleOfScreen - rectangleWidth / 6f, lesserRectangleHeight,
-                middleOfScreen, lesserRectangleHeight,
-                middleOfScreen, (lesserRectangleHeight + lineHeight) / 2f
+                centerX - rectangleWidth / 6f, lesserRectangleHeight,
+                centerX, lesserRectangleHeight,
+                centerX, (lesserRectangleHeight + lineHeight) / 2f
             )
-            path.moveTo(middleOfScreen + rectangleWidth / 6f, rectangleHeight)
+            path.moveTo(centerX + rectangleWidth / 6f, rectangleHeight)
             path.cubicTo(
-                middleOfScreen + rectangleWidth / 6f, lesserRectangleHeight,
-                middleOfScreen, lesserRectangleHeight,
-                middleOfScreen, (lesserRectangleHeight + lineHeight) / 2f
+                centerX + rectangleWidth / 6f, lesserRectangleHeight,
+                centerX, lesserRectangleHeight,
+                centerX, (lesserRectangleHeight + lineHeight) / 2f
             )
-            drawPath(path, paint)
+            //drawPath(path, paint)
             if (isShadowEnabled) {
                 displayShadow(true) // Re-enable shadow
             }
@@ -302,17 +332,19 @@ class ScrollableRulerView1(context: Context, attrs: AttributeSet?) : View(contex
             )
 
             val distance = rulerEndValue - rulerStartValue
-            val xAxisValueMarkerModulo = distance / 10
-
+            val xAxisValueMarkerModulo = distance / 6
 
             while (count <= rulerEndValue) {
                 val distanceFromCenter = abs(centerX - startX)
                 val alphaFactor = (255 * (1 - distanceFromCenter / centerX)).toInt()
 
                 paintSolid.alpha = alphaFactor
+
                 if (count % xAxisValueMarkerModulo == 0) {
                     val text =
                         scrollableRulerFormatter?.getRulerValue(count) ?: count.toString()
+
+
                     drawText(
                         text,
                         startX,
@@ -337,13 +369,15 @@ class ScrollableRulerView1(context: Context, attrs: AttributeSet?) : View(contex
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
                 lastTouchX = event.x
-                isPressed = true
+                rulerViewPressed = true
+                isContentVisible = true
                 parent?.requestDisallowInterceptTouchEvent(true)
             }
 
             MotionEvent.ACTION_UP -> {
                 lastTouchX = event.x
-                isPressed = false
+                rulerViewPressed = false
+                invalidateCache()
                 parent?.requestDisallowInterceptTouchEvent(false)
             }
 
@@ -380,12 +414,12 @@ class ScrollableRulerView1(context: Context, attrs: AttributeSet?) : View(contex
                     searchJob = coroutineScope.launch {
                         rulerValue.let {
                             delay(debouncePeriod)
-                            Log.d(
+                            /*Logger.d(
                                 TAG,
                                 "Value emitted after scroll: ${
                                     scrollableRulerFormatter?.getMarkerValue(rulerValue)
                                 }"
-                            )
+                            )*/
                             callback.onRulerValueChanged(rulerValue)
                         }
                     }

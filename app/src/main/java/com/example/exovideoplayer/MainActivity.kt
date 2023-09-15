@@ -3,6 +3,7 @@ package com.example.exovideoplayer
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
+import android.view.MotionEvent
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -17,6 +18,7 @@ import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineData
 import com.github.mikephil.charting.data.LineDataSet
 import com.github.mikephil.charting.formatter.ValueFormatter
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.math.ceil
 
@@ -28,6 +30,8 @@ class MainActivity : AppCompatActivity() {
     private val viewBinding by lazy(LazyThreadSafetyMode.NONE) {
         ActivityMainBinding.inflate(layoutInflater)
     }
+
+    val list = mutableListOf<BreakEvenChartInputData>()
 
     val inputData = BreakEvenChartInputData(
         isSell = true,
@@ -43,9 +47,55 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(viewBinding.root)
+        addItems()
         scrollView()
         output = computeBreakEvenChartOutputData(inputData)
         drawLineChart()
+        //resetChart()
+    }
+
+    private fun addItems() {
+        list.add(
+            BreakEvenChartInputData(
+                isSell = false,
+                premium = 9.75,
+                breakEven = 970.25,
+                lotSize = 700,
+                optionType = OptionType.PUT,
+                optionName = "ICICIBANK",
+                parentStockPrice = 990.5
+            )
+        )
+        list.add(
+            BreakEvenChartInputData(
+                isSell = true,
+                premium = 12.2,
+                breakEven = 1012.2,
+                lotSize = 700,
+                optionType = OptionType.CALL,
+                optionName = "ICICIBANK",
+                parentStockPrice = 990.5
+            )
+        )
+        list.add(BreakEvenChartInputData(
+            isSell = false,
+            premium = 94.0,
+            breakEven = 20094.0,
+            lotSize = 50,
+            optionType = OptionType.CALL,
+            optionName = "Nifty 50",
+            parentStockPrice = 20070.0
+        ))
+
+        list.add(BreakEvenChartInputData(
+            isSell = false,
+            premium = 2.95,
+            breakEven = 1603.0,
+            lotSize = 400,
+            optionType = OptionType.CALL,
+            optionName = "Infosys",
+            parentStockPrice = 1498.35
+        ))
     }
 
     private fun scrollView() {
@@ -53,22 +103,23 @@ class MainActivity : AppCompatActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 val scrollRuler = viewBinding.scrollableRuler
                 scrollRuler.rulerStartValue = 0
-                scrollRuler.rulerEndValue = 1000
-                scrollRuler.moveToIndex(450)
+                scrollRuler.rulerEndValue = 100
+                scrollRuler.moveToIndex(4)
                 scrollRuler.enableShadow(false)
             }
         }
     }
 
     private fun drawLineChart() {
+        val listData = list.random()
         val customMarkerView = CustomMarkerView(
             context = this,
             layoutResource = R.layout.custom_marker_view,
-            inputData = inputData
+            inputData = listData
         )
         customMarkerView.chartView = viewBinding.historyChart
-        val breakEvenChartOutputData = output!!
-        val lineChartData = convertBreakEvenDataToLineChartData(breakEvenChartOutputData = output!!)
+        val breakEvenChartOutputData = computeBreakEvenChartOutputData(listData)//output!!
+        val lineChartData = convertBreakEvenDataToLineChartData(breakEvenChartOutputData = breakEvenChartOutputData)
         viewBinding.historyChart.apply {
             visibility = View.VISIBLE
             setTouchEnabled(true)
@@ -89,6 +140,32 @@ class MainActivity : AppCompatActivity() {
                 text = ""
                 textSize = 12f
                 isEnabled = false // make it true to show the description
+            }
+        }
+        customMarkerView.hideHighlightLine()
+
+        viewBinding.historyChart.setOnTouchListener { v, event ->
+            when (event.action) {
+                MotionEvent.ACTION_DOWN -> {
+                    viewBinding.parent.requestDisallowInterceptTouchEvent(true)
+                }
+
+                MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
+                    viewBinding.parent.requestDisallowInterceptTouchEvent(false)
+                }
+            }
+            false
+        }
+    }
+
+    private fun resetChart() {
+        lifecycleScope.launch {
+            while (true) {
+                drawLineChart()
+                delay(5000) // to mock the behaviour of reloading the chart after 5 sec
+                viewBinding.historyChart.axisLeft.removeAllLimitLines() //remove this limit line
+                viewBinding.historyChart.axisRight.removeAllLimitLines()
+                viewBinding.historyChart.xAxis.removeAllLimitLines()
             }
         }
     }

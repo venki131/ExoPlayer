@@ -137,6 +137,11 @@ class CustomMarkerView(
         markerView?.visibility = GONE
     }
 
+    fun hideHighlightLine() {
+        chartView.highlightValues(emptyArray())
+        invalidate()
+    }
+
 
     override fun getOffset(): MPPointF {
         if (offset == null) {
