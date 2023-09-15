@@ -2,7 +2,6 @@ package com.example.exovideoplayer
 
 //import com.assetgro.stockgro.databinding.LayoutVideoPlayerBinding
 import android.content.Context
-import android.os.Handler
 import android.util.AttributeSet
 import android.view.LayoutInflater
 import android.view.View
@@ -23,6 +22,11 @@ import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import com.example.exovideoplayer.databinding.LayoutVideoPlayerBinding
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.cancelChildren
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
@@ -58,8 +62,7 @@ class VideoPlayer @JvmOverloads constructor(
     private var currentQualityIndex = 0
     private var selectedQuality = 1
 
-    private val handler = Handler()
-
+    private val coroutineScope = CoroutineScope(Dispatchers.Main)
     fun attachLifecycle(lifecycle: Lifecycle) {
         lifecycle.addObserver(this)
     }
@@ -97,6 +100,18 @@ class VideoPlayer @JvmOverloads constructor(
         customSeekBar?.setOnSeekBarChangeListener(this)
     }
 
+    private suspend fun updateProgressPeriodically() {
+        while (true) {
+            updateProgress()
+            delay(1000) // Update every second (adjust the delay time as needed)
+        }
+    }
+
+    // Call this function to stop the periodic progress updates when necessary
+    private fun stopProgressUpdates() {
+        coroutineScope.coroutineContext.cancelChildren()
+    }
+
     fun initializePlayer(videoUrl: String, isFullScreen: Boolean = false) {
         setFullScreenView(isFullScreen)
 
@@ -114,7 +129,9 @@ class VideoPlayer @JvmOverloads constructor(
                 val mediaItem = MediaItem.fromUri(videoUrl)
                 exoPlayer.setMediaItems(listOf(mediaItem), mediaItemIndex, playbackPosition)
                 exoPlayer.playWhenReady = playWhenReady
-                handler.post(updateProgressAction)
+                coroutineScope.launch {
+                    updateProgressPeriodically()
+                }
                 exoPlayer.addListener(playbackStateListener)
                 volumeButton?.setOnClickListener {
                     isMuted = !isMuted
@@ -124,12 +141,14 @@ class VideoPlayer @JvmOverloads constructor(
                 playPauseButton?.setOnClickListener {
                     if (exoPlayer.isPlaying) {
                         exoPlayer.pause()
-                        handler.removeCallbacks(updateProgressAction)
+                        stopProgressUpdates()
                     } else {
                         exoPlayer.play()
-                        handler.post(updateProgressAction)
+                        coroutineScope.launch {
+                            updateProgressPeriodically()
+                        }
                     }
-                    it.startAnimation(playPauseAnimation)
+                    //it.startAnimation(playPauseAnimation)
                     updatePlayPauseButtonState(exoPlayer)
                 }
                 fastForward?.setOnClickListener {
@@ -193,7 +212,6 @@ class VideoPlayer @JvmOverloads constructor(
             mediaItemIndex = player.currentMediaItemIndex
             playWhenReady = player.playWhenReady
             player.removeListener(playbackStateListener)
-            handler.removeCallbacks(updateProgressAction)
             player.release()
         }
         player = null
@@ -212,7 +230,8 @@ class VideoPlayer @JvmOverloads constructor(
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     private fun onResume(){
-        startPlayback()
+        if (player?.isPlaying == false)
+            startPlayback()
     }
 
     private fun startPlayback() {
@@ -274,13 +293,6 @@ class VideoPlayer @JvmOverloads constructor(
             R.drawable.play_circle
         }
         playPauseButton?.setImageResource(playPauseIcon)
-    }
-
-    private val updateProgressAction = object : Runnable {
-        override fun run() {
-            updateProgress()
-            handler.postDelayed(this, 1000) // Update every second
-        }
     }
 
     private var selectedSpeedPosition: Int = 2 // Default selection
