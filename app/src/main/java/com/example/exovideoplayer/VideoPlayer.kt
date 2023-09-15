@@ -39,7 +39,7 @@ class VideoPlayer @JvmOverloads constructor(
     private val playbackStateListener: Player.Listener = playbackStateListener()
     private var player: Player? = null
 
-    private var playWhenReady = true
+    private var playWhenReady = false
     private var mediaItemIndex = 0
     private var playbackPosition = 0L
     private var mediaVolume = 0f
@@ -60,34 +60,12 @@ class VideoPlayer @JvmOverloads constructor(
 
     private val handler = Handler()
 
-
-    private val lifecycleObserver = object : LifecycleObserver {
-        @OnLifecycleEvent(Lifecycle.Event.ON_START)
-        fun onStart() {
-            // Called when the containing component is started
-            // resume video playback
-        }
-
-        @OnLifecycleEvent(Lifecycle.Event.ON_STOP)
-        fun onStop() {
-            // Called when the containing component is stopped
-            // pause video playback
-            pausePlayback()
-        }
-
-        @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-        fun onResume() {
-            startPlayback()
-        }
-        // Implement other lifecycle events as needed
-    }
-
     fun attachLifecycle(lifecycle: Lifecycle) {
-        lifecycle.addObserver(lifecycleObserver)
+        lifecycle.addObserver(this)
     }
 
     fun detachLifecycle(lifecycle: Lifecycle) {
-        lifecycle.removeObserver(lifecycleObserver)
+        lifecycle.removeObserver(this)
     }
 
     init {
@@ -221,11 +199,27 @@ class VideoPlayer @JvmOverloads constructor(
         player = null
     }
 
-    fun startPlayback() {
+    @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
+    private fun onPause() {
+        pausePlayback()
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
+    private fun onDestroy() {
+        releasePlayer()
+        player?.playWhenReady = false
+    }
+
+    @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+    private fun onResume(){
+        startPlayback()
+    }
+
+    private fun startPlayback() {
         player?.play()
     }
 
-    fun pausePlayback() {
+    private fun pausePlayback() {
         player?.pause()
     }
 

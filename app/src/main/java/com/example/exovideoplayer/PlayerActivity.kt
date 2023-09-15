@@ -22,6 +22,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.lifecycle.LifecycleOwner
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MimeTypes
@@ -106,16 +107,22 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
     }
 
     private var recyclerView: RecyclerView? = null
-
+    private val lifecycleOwner: LifecycleOwner = this
     private fun initRvAdapter() {
         recyclerView = viewBinding.videoRecyclerview
         val videoList = mutableListOf(
             getString(R.string.media_url_mp4),
+            getString(R.string.media_url_mp3),
+            getString(R.string.media_url_mp4),
             getString(R.string.media_url_mp3)
         )
 
-        val adapter = VideoRvAdapter(videoList)
+        val adapter = VideoRvAdapter(videoList, lifecycleOwner = lifecycleOwner)
         recyclerView?.adapter = adapter
+
+        viewBinding.addToFavourites.setOnClickListener {
+            adapter.notifyDataSetChanged()
+        }
     }
 
 

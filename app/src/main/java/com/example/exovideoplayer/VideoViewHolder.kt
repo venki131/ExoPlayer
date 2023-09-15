@@ -1,32 +1,31 @@
 package com.example.exovideoplayer
 
+import android.util.Log
 import android.view.View
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.findViewTreeLifecycleOwner
+import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 
 class VideoViewHolder(
     itemView: View
 ) : RecyclerView.ViewHolder(itemView) {
+    private val TAG = VideoViewHolder::class.java.simpleName
     private val player: VideoPlayer = itemView.findViewById(R.id.video_player)
-    private val lifecycle: Lifecycle?
-        get() = itemView.findViewTreeLifecycleOwner()?.lifecycle
-
+    private var isPlayerInitialized = false
     fun bind(videoUrl: String) {
-        lifecycle?.let {
-            player.attachLifecycle(it)
+        if (isPlayerInitialized.not()) {
+            player.initializePlayer(videoUrl)
+            isPlayerInitialized = true
+            Log.d(TAG, "Player initialized for URL: $videoUrl")
         }
-        player.initializePlayer(videoUrl)
     }
 
-    fun onViewAttachedToWindow() {
-        player.startPlayback()
+    fun onViewAttachedToWindow(lifecycleOwner: LifecycleOwner) {
+        Log.d(TAG, "attached to window")
+        player.attachLifecycle(lifecycleOwner.lifecycle)
     }
 
-    fun onViewDetachedFromWindow() {
-        player.pausePlayback()
-        lifecycle?.let {
-            player.detachLifecycle(it)
-        }
+    fun onViewDetachedFromWindow(lifecycleOwner: LifecycleOwner) {
+        Log.d(TAG, "detached from window")
+        player.detachLifecycle(lifecycleOwner.lifecycle)
     }
 }
