@@ -2,6 +2,7 @@ package com.example.exovideoplayer
 
 import android.util.Log
 import android.view.View
+import android.widget.ImageButton
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
 
@@ -10,8 +11,9 @@ class VideoViewHolder(
 ) : RecyclerView.ViewHolder(itemView) {
     private val TAG = VideoViewHolder::class.java.simpleName
     private val player: VideoPlayer = itemView.findViewById(R.id.video_player)
+    val bookmark: ImageButton = itemView.findViewById(R.id.img1)
     private var isPlayerInitialized = false
-    fun bind(videoUrl: String) {
+    fun bind(videoUrl: String, playbackPos: Long = 0L) {
         if (isPlayerInitialized.not()) {
             player.initializePlayer(videoUrl)
             isPlayerInitialized = true
@@ -19,9 +21,8 @@ class VideoViewHolder(
         }
 
         val isFirstItem = position == 0
-
         if (isFirstItem) {
-            player.startPlayback()
+            player.startPlayback(playbackPos)
         }
     }
 
@@ -34,4 +35,6 @@ class VideoViewHolder(
         Log.d(TAG, "detached from window")
         player.detachLifecycle(lifecycleOwner.lifecycle)
     }
+
+    fun getPlaybackPos() = player.getPlaybackPosition()
 }

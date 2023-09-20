@@ -8,6 +8,8 @@ class VideoRvAdapter(
     private val list: MutableList<String> = mutableListOf(),
 ) : RecyclerView.Adapter<VideoViewHolder>() {
 
+    private var currentPlaybackPos: Long = 0L
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): VideoViewHolder {
         val view = LayoutInflater.from(parent.context).inflate(R.layout.item_video, parent, false)
         return VideoViewHolder(view)
@@ -16,7 +18,11 @@ class VideoRvAdapter(
     override fun getItemCount() = list.size
 
     override fun onBindViewHolder(holder: VideoViewHolder, position: Int) {
-        holder.bind(list[position])
+        holder.bind(list[position], currentPlaybackPos)
+        holder.bookmark.setOnClickListener {
+            currentPlaybackPos = holder.getPlaybackPos()
+            notifyItemChanged(position)
+        }
     }
 }
 

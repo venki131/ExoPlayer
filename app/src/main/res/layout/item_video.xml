@@ -28,10 +28,12 @@
         android:layout_marginTop="8dp"
         app:layout_constraintTop_toBottomOf="@id/video_player">
 
-        <ImageView
+        <ImageButton
             android:id="@+id/img1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
             android:src="@drawable/bookmark_border_24"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/img2"
@@ -40,10 +42,12 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.5" />
 
-        <ImageView
+        <ImageButton
             android:id="@+id/img2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
             android:src="@drawable/bookmark_border_24"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/img3"
@@ -52,10 +56,12 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.5" />
 
-        <ImageView
+        <ImageButton
             android:id="@+id/img3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:clickable="true"
+            android:focusable="true"
             android:src="@drawable/bookmark_border_24"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
