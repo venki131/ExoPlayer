@@ -70,6 +70,7 @@ class VideoPlayer @JvmOverloads constructor(
     fun detachLifecycle(lifecycle: Lifecycle) {
         pausePlayback()
         player?.let {
+            playbackPosition = it.currentPosition
             updatePlayPauseButtonState(it)
         }
         lifecycle.removeObserver(this)
@@ -238,9 +239,10 @@ class VideoPlayer @JvmOverloads constructor(
         startPlayback()
     }
 
-    fun startPlayback() {
+    fun startPlayback(playbackPos: Long = 0L) {
         player?.let { exoPlayer ->
             exoPlayer.play()
+            exoPlayer.seekTo(playbackPos)
             if (exoPlayer.playbackState == ExoPlayer.STATE_READY) updatePlayPauseButtonState(exoPlayer = exoPlayer)
         }
     }
@@ -257,6 +259,8 @@ class VideoPlayer @JvmOverloads constructor(
         }
         volumeButton?.setImageResource(muteIcon)
     }
+
+    fun getPlaybackPosition() = player?.currentPosition ?: playbackPosition
 
     private fun playbackStateListener() = object : Player.Listener {
         override fun onPlaybackStateChanged(playbackState: Int) {
