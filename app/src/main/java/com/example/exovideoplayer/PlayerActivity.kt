@@ -112,6 +112,7 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
         recyclerView = viewBinding.videoRecyclerview
         val videoList = mutableListOf(
             getString(R.string.media_url_mp4),
+            null,
             getString(R.string.media_url_mp3),
             getString(R.string.media_url_mp4),
             getString(R.string.media_url_mp3),

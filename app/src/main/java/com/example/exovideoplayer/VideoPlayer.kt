@@ -242,7 +242,8 @@ class VideoPlayer @JvmOverloads constructor(
     fun startPlayback(playbackPos: Long = 0L) {
         player?.let { exoPlayer ->
             exoPlayer.play()
-            exoPlayer.seekTo(playbackPos)
+            if (playbackPos != 0L)
+                exoPlayer.seekTo(playbackPos)
             if (exoPlayer.playbackState == ExoPlayer.STATE_READY) updatePlayPauseButtonState(exoPlayer = exoPlayer)
         }
     }
