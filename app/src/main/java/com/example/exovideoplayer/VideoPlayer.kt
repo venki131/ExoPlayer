@@ -75,6 +75,7 @@ class VideoPlayer @JvmOverloads constructor(
         init(context)
         keepScreenOn = true //keep this in-order to avoid screen lock when playing the video
     }
+
     private fun init(context: Context) {
         _context = context
         val inflater = context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
@@ -229,17 +230,21 @@ class VideoPlayer @JvmOverloads constructor(
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
-    private fun onResume(){
-        if (player?.isPlaying == false)
-            startPlayback()
+    private fun onResume() {
+        startPlayback()
     }
 
     private fun startPlayback() {
-        player?.play()
+        player?.let { exoPlayer ->
+            exoPlayer.play()
+            if (exoPlayer.playbackState == ExoPlayer.STATE_READY) updatePlayPauseButtonState(exoPlayer = exoPlayer)
+        }
     }
 
-    private fun pausePlayback() {
-        player?.pause()
+    fun pausePlayback() {
+        player?.let { exoPlayer ->
+            exoPlayer.pause()
+        }
     }
 
     private fun updateVolumeButtonState() {
@@ -260,6 +265,9 @@ class VideoPlayer @JvmOverloads constructor(
                 }
 
                 ExoPlayer.STATE_READY -> {
+                    player?.let {
+                        updatePlayPauseButtonState(it)
+                    }
                     binding.videoView.useController = true
                 }
 
@@ -286,7 +294,7 @@ class VideoPlayer @JvmOverloads constructor(
         }
     }
 
-    private fun updatePlayPauseButtonState(exoPlayer: ExoPlayer) {
+    private fun updatePlayPauseButtonState(exoPlayer: Player) {
         val playPauseIcon = if (exoPlayer.isPlaying) {
             R.drawable.ic_pause_circle
         } else {
