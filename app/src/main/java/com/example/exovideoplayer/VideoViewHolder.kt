@@ -13,15 +13,15 @@ class VideoViewHolder(
     private val player: VideoPlayer = itemView.findViewById(R.id.video_player)
     val bookmark: ImageButton = itemView.findViewById(R.id.img1)
     private var isPlayerInitialized = false
-    fun bind(videoUrl: String, playbackPos: Long = 0L) {
-        if (isPlayerInitialized.not()) {
+    fun bind(videoUrl: String? = null, playbackPos: Long = 0L) {
+        if (videoUrl != null && isPlayerInitialized.not()) {
             player.initializePlayer(videoUrl)
             isPlayerInitialized = true
             Log.d(TAG, "Player initialized for URL: $videoUrl")
         }
 
         val isFirstItem = position == 0
-        if (isFirstItem) {
+        if (videoUrl != null && isFirstItem) {
             player.startPlayback(playbackPos)
         }
     }

@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 
 class VideoRvAdapter(
-    private val list: MutableList<String> = mutableListOf(),
+    private val list: MutableList<String?> = mutableListOf(),
 ) : RecyclerView.Adapter<VideoViewHolder>() {
 
     private var currentPlaybackPos: Long = 0L
