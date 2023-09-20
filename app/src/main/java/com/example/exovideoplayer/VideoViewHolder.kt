@@ -17,6 +17,12 @@ class VideoViewHolder(
             isPlayerInitialized = true
             Log.d(TAG, "Player initialized for URL: $videoUrl")
         }
+
+        val isFirstItem = position == 0
+
+        if (isFirstItem) {
+            player.startPlayback()
+        }
     }
 
     fun onViewAttachedToWindow(lifecycleOwner: LifecycleOwner) {
