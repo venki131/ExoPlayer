@@ -13,10 +13,14 @@ import android.graphics.PointF
 import android.graphics.PorterDuff
 import android.graphics.RectF
 import android.util.AttributeSet
+import android.util.Log
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.DecelerateInterpolator
+import android.view.animation.LinearInterpolator
+import android.widget.OverScroller
 import androidx.core.content.ContextCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -31,6 +35,7 @@ class ScrollableRulerView(context: Context, attrs: AttributeSet?) : View(context
     private var cachedBitmap: Bitmap? = null
     private var cacheValid = false
     private var isContentVisible = false
+
     companion object {
         const val TAG = "ScrollableRulerView"
     }
@@ -44,7 +49,7 @@ class ScrollableRulerView(context: Context, attrs: AttributeSet?) : View(context
 
     private var density: Float = context.resources.displayMetrics.density
     private var padding = 4 * density
-    private var textBoxWidthPadding = 12 * density
+    private var textBoxWidthPadding = 10.5f * density
     private var textBoxHeightPadding = 8 * density
 
     private var path = Path()
@@ -52,7 +57,6 @@ class ScrollableRulerView(context: Context, attrs: AttributeSet?) : View(context
     private val rectangle2 = RectF()
     private var rectangleWidth = 80 * density
     private var rectangleHeight = 22 * density
-    private var lesserRectangleHeight = 11 * density
     private val rectangleRadius = 4 * density
     private var topGap = 32 * density
     private var gapBetweenViews = 12 * density
@@ -130,6 +134,10 @@ class ScrollableRulerView(context: Context, attrs: AttributeSet?) : View(context
         isShadowEnabled = enable
         invalidate() // Invalidate the view to trigger a redraw with the updated shadow state
     }
+
+    //private val scroller = OverScroller(context, DecelerateInterpolator(0.5f))
+    private val scroller = OverScroller(context)
+    //private val scroller = OverScroller(context, LinearInterpolator())
 
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -246,7 +254,9 @@ class ScrollableRulerView(context: Context, attrs: AttributeSet?) : View(context
         val rightMargin = 0//layoutParams?.rightMargin ?: 16
 
         // Calculate the text length dynamically based on the content
-        val textLength = paintText.measureText(scrollableRulerFormatter?.getMarkerValue(rulerValue) ?: rulerValue.toString())
+        val textLength = paintText.measureText(
+            scrollableRulerFormatter?.getMarkerValue(rulerValue) ?: rulerValue.toString()
+        )
 
         // Calculate the rectangle dimensions based on the text length and padding
         val textSize = paintText.textSize
@@ -305,20 +315,6 @@ class ScrollableRulerView(context: Context, attrs: AttributeSet?) : View(context
             /**
              * disabling shadow for the cubic figure in-order to avoid the black patch on the rectangle
              */
-            displayShadow() // Disable shadow
-            path.moveTo(centerX - rectangleWidth / 6f, rectangleHeight)
-            path.cubicTo(
-                centerX - rectangleWidth / 6f, lesserRectangleHeight,
-                centerX, lesserRectangleHeight,
-                centerX, (lesserRectangleHeight + lineHeight) / 2f
-            )
-            path.moveTo(centerX + rectangleWidth / 6f, rectangleHeight)
-            path.cubicTo(
-                centerX + rectangleWidth / 6f, lesserRectangleHeight,
-                centerX, lesserRectangleHeight,
-                centerX, (lesserRectangleHeight + lineHeight) / 2f
-            )
-            //drawPath(path, paint)
             if (isShadowEnabled) {
                 displayShadow(true) // Re-enable shadow
             }
@@ -384,53 +380,125 @@ class ScrollableRulerView(context: Context, attrs: AttributeSet?) : View(context
             MotionEvent.ACTION_MOVE -> {
                 val dx = event.x - lastTouchX
                 initialXValue += dx
+
+                // Ensure initialXValue is within the valid range
                 if (initialXValue > middleOfScreen) initialXValue = middleOfScreen
                 if (initialXValue < 0) {
-
                     if (initialXValue.absoluteValue + middleOfScreen > rulerLength) {
                         initialXValue = -(rulerLength - middleOfScreen)
                     }
-
-
-                    rulerValue =
-                        rulerStartValue + (((initialXValue.absoluteValue + middleOfScreen) / gapBetweenLines) * rulerIncrementValue).toInt()
-
-                    if (rulerValue > rulerEndValue) {
-                        rulerValue = rulerEndValue
-                    }
-
-                } else {
-                    rulerValue =
-                        rulerStartValue + (((middleOfScreen - initialXValue) / gapBetweenLines) * rulerIncrementValue).toInt()
-
-                    if (rulerValue > rulerEndValue) {
-                        rulerValue = rulerEndValue
-                    }
                 }
 
+                // Calculate the rulerValue based on the current initialXValue
+                rulerValue = calculateRulerValue(initialXValue)
 
+                // Notify the listener with the snapped rulerValue
                 listener?.let { callback ->
                     searchJob?.cancel()
                     searchJob = coroutineScope.launch {
                         rulerValue.let {
                             delay(debouncePeriod)
-                            /*Logger.d(
+                            Log.d(
                                 TAG,
                                 "Value emitted after scroll: ${
                                     scrollableRulerFormatter?.getMarkerValue(rulerValue)
                                 }"
-                            )*/
+                            )
                             callback.onRulerValueChanged(rulerValue)
                         }
                     }
                 }
 
+                // Smooth scroll to the snapped position
+                scrollToSnappedPosition()
+
+                // Invalidate the cache and update lastTouchX
                 invalidateCache()
                 lastTouchX = event.x
             }
         }
         return true
     }
+
+    // Calculate rulerValue based on initialXValue
+    private fun calculateRulerValue(initialXValue: Float): Int {
+        return if (initialXValue < 0) {
+            rulerStartValue + (((initialXValue.absoluteValue + middleOfScreen) / gapBetweenLines) * rulerIncrementValue).toInt()
+        } else {
+            rulerStartValue + (((middleOfScreen - initialXValue) / gapBetweenLines) * rulerIncrementValue).toInt()
+        }
+    }
+
+    // Smooth scroll to the snapped position using Scroller
+    private fun scrollToSnappedPosition() {
+        val snappedInitialXValue = calculateInitialXValue(rulerValue)
+        val dx = snappedInitialXValue - initialXValue
+        if (initialXValue <= snappedInitialXValue) {
+            // Start a smooth scroll animation
+            scroller.startScroll(
+                initialXValue.toInt(),
+                0,
+                dx.toInt(),
+                0,
+                (snappedInitialXValue - initialXValue).toInt(),
+            )
+            postInvalidateOnAnimation()
+        }
+    }
+
+    // Smooth scroll to the snapped position using Scroller
+    /*private fun scrollToSnappedPosition() {
+        val snappedInitialXValue = calculateInitialXValue(rulerValue)
+        val dx = (snappedInitialXValue - initialXValue).toInt()
+        val snapDuration = 200 // Adjust this value for the snap animation duration (milliseconds)
+        val snapThreshold = gapBetweenLines / 2 // 50% threshold for snapping
+
+        // Determine whether to snap to the next line or the previous line
+        val snapToNextLine = if (dx > 0) {
+            dx > snapThreshold
+        } else {
+            dx < -snapThreshold
+        }
+
+        // Check if the distance between lines is more than 50% of a line's gap
+        val isMoreThanHalfWay = abs(dx % gapBetweenLines) > snapThreshold
+
+        // Adjust the finalDx based on snap direction
+        val finalDx = if (snapToNextLine) {
+            if (dx > 0) gapBetweenLines else -gapBetweenLines
+        } else {
+            if (dx > 0) -gapBetweenLines else 0
+        }
+
+        Log.d(TAG, "snap next line = $snapToNextLine dx = $dx morethan50 = $isMoreThanHalfWay")
+
+        // Start a smooth scroll animation
+        scroller.startScroll(
+            initialXValue.toInt(),
+            0,
+            finalDx.toInt(),
+            0,
+            snapDuration
+        )
+        postInvalidateOnAnimation()
+    }*/
+
+
+    private fun calculateInitialXValue(rulerValue: Int): Float {
+        return (middleOfScreen - (rulerValue - rulerStartValue) * gapBetweenLines).apply {
+            "%.1f".format(this).toFloat()
+        }
+    }
+
+    // Override the computeScroll method to handle scroll updates
+    override fun computeScroll() {
+        if (scroller.computeScrollOffset()) {
+            // Update the initialXValue during the scroll animation
+            initialXValue = scroller.currX.toFloat()
+            postInvalidateOnAnimation()
+        }
+    }
+
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val height = (topGap + lineHeight + padding + legendTextSize + (padding * 3)).roundToInt()
