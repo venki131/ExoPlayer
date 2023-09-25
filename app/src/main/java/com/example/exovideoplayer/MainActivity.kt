@@ -103,8 +103,8 @@ class MainActivity : AppCompatActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 val scrollRuler = viewBinding.scrollableRuler
                 scrollRuler.rulerStartValue = 0
-                scrollRuler.rulerEndValue = 100
-                scrollRuler.moveToIndex(4)
+                scrollRuler.rulerEndValue = 1000
+                scrollRuler.moveToIndex(243)
                 scrollRuler.enableShadow(false)
             }
         }
