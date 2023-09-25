@@ -4,6 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 
+var isGlobalMuted = false
 class VideoRvAdapter(
     private val list: MutableList<String?> = mutableListOf(),
 ) : RecyclerView.Adapter<VideoViewHolder>() {

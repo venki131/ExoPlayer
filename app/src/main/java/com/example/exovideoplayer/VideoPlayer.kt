@@ -140,9 +140,9 @@ class VideoPlayer @JvmOverloads constructor(
                 }
                 exoPlayer.addListener(playbackStateListener)
                 volumeButton?.setOnClickListener {
-                    isMuted = !isMuted
-                    exoPlayer.volume = if (isMuted) 0f else 1f
-                    updateVolumeButtonState()
+                    isGlobalMuted = !isGlobalMuted
+                    exoPlayer.volume = if (isGlobalMuted) 0f else 1f
+                    updateVolumeButtonState(isGlobalMuted)
                 }
                 playPauseButton?.setOnClickListener {
                     if (exoPlayer.isPlaying) {
@@ -241,6 +241,8 @@ class VideoPlayer @JvmOverloads constructor(
 
     fun startPlayback(playbackPos: Long = 0L) {
         player?.let { exoPlayer ->
+            exoPlayer.volume = if (isGlobalMuted) 0f else 1f
+            updateVolumeButtonState(isGlobalMuted)
             exoPlayer.play()
             if (playbackPos != 0L)
                 exoPlayer.seekTo(playbackPos)
@@ -252,7 +254,7 @@ class VideoPlayer @JvmOverloads constructor(
         player?.pause()
     }
 
-    private fun updateVolumeButtonState() {
+   private fun updateVolumeButtonState(isMuted: Boolean) {
         val muteIcon = if (isMuted) {
             R.drawable.ic_volume_off
         } else {
