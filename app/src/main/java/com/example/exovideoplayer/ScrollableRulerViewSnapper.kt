@@ -29,7 +29,7 @@ import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
-class ScrollableRulerView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
+class ScrollableRulerViewSnapper(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
     private var cachedBitmap: Bitmap? = null
     private var cacheValid = false
@@ -349,6 +349,7 @@ class ScrollableRulerView(context: Context, attrs: AttributeSet?) : View(context
                 drawLine(startX, topGap, startX, topGap + lineHeight, paintSolid)
                 startX += gapBetweenLines
                 count += rulerIncrementValue
+                Log.d(TAG, "start value = $startX count = $count")
             }
         }
     }
@@ -361,30 +362,21 @@ class ScrollableRulerView(context: Context, attrs: AttributeSet?) : View(context
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
-                scroller.forceFinished(true) // Stop any ongoing scroll animations
                 lastTouchX = event.x
                 rulerViewPressed = true
                 isContentVisible = true
-                lastScrollX = event.x
                 parent?.requestDisallowInterceptTouchEvent(true)
             }
 
-            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+            MotionEvent.ACTION_UP -> {
                 lastTouchX = event.x
                 rulerViewPressed = false
                 invalidateCache()
-                val snapPosition = calculateSnappedPosition()
-                // Animate to the snapped position
-                smoothScrollToPosition(snapPosition.toInt())
                 parent?.requestDisallowInterceptTouchEvent(false)
             }
 
             MotionEvent.ACTION_MOVE -> {
-                val dx = (event.x - lastScrollX).toInt()
-                if (dx != 0) {
-                    lastScrollX = event.x
-                }
-
+                val dx = event.x - lastTouchX
                 initialXValue += dx
 
                 // Ensure initialXValue is within the valid range
@@ -398,12 +390,8 @@ class ScrollableRulerView(context: Context, attrs: AttributeSet?) : View(context
                 // Calculate the rulerValue based on the current initialXValue
                 rulerValue = calculateRulerValue(initialXValue)
 
-                //moveToIndex(rulerValue)
-
-                listener?.onRulerValueChanged(rulerValue)
-
                 // Notify the listener with the snapped rulerValue
-                /*listener?.let { callback ->
+                listener?.let { callback ->
                     searchJob?.cancel()
                     searchJob = coroutineScope.launch {
                         rulerValue.let {
@@ -417,7 +405,10 @@ class ScrollableRulerView(context: Context, attrs: AttributeSet?) : View(context
                             callback.onRulerValueChanged(rulerValue)
                         }
                     }
-                }*/
+                }
+
+                // Smooth scroll to the snapped position
+                scrollToSnappedPosition()
 
                 // Invalidate the cache and update lastTouchX
                 invalidateCache()
@@ -434,12 +425,12 @@ class ScrollableRulerView(context: Context, attrs: AttributeSet?) : View(context
         postInvalidate()
     }
 
-    override fun computeScroll() {
+    /*override fun computeScroll() {
         if (scroller.computeScrollOffset()) {
-            scrollTo(scroller.currX, 0)
+            scrollTo(scroller.currX ?: 0, 0)
             postInvalidate()
         }
-    }
+    }*/
 
     private fun calculateSnappedPosition(): Float {
         val lineSpacing = gapBetweenLines
@@ -452,10 +443,8 @@ class ScrollableRulerView(context: Context, attrs: AttributeSet?) : View(context
     // Calculate rulerValue based on initialXValue
     private fun calculateRulerValue(initialXValue: Float): Int {
         return if (initialXValue < 0) {
-            Log.d(TAG, "calculated ruler value = ${rulerStartValue + (((initialXValue.absoluteValue + middleOfScreen) / gapBetweenLines) * rulerIncrementValue).toInt()}")
             rulerStartValue + (((initialXValue.absoluteValue + middleOfScreen) / gapBetweenLines) * rulerIncrementValue).toInt()
         } else {
-            Log.d(TAG, "calculated ruler value = ${rulerStartValue + (((middleOfScreen - initialXValue) / gapBetweenLines) * rulerIncrementValue).toInt()}")
             rulerStartValue + (((middleOfScreen - initialXValue) / gapBetweenLines) * rulerIncrementValue).toInt()
         }
     }
@@ -522,13 +511,13 @@ class ScrollableRulerView(context: Context, attrs: AttributeSet?) : View(context
     }
 
     // Override the computeScroll method to handle scroll updates
-    /*override fun computeScroll() {
+    override fun computeScroll() {
         if (scroller.computeScrollOffset()) {
             // Update the initialXValue during the scroll animation
             initialXValue = scroller.currX.toFloat()
             postInvalidateOnAnimation()
         }
-    }*/
+    }
 
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -540,7 +529,7 @@ class ScrollableRulerView(context: Context, attrs: AttributeSet?) : View(context
 
 }
 
-interface OnRulerValueChangeListener {
+/*interface OnRulerValueChangeListener {
     fun onRulerValueChanged(rulerValue: Int)
 }
 
@@ -549,4 +538,4 @@ interface ScrollableRulerFormatter {
     fun getRulerValue(index: Int): String
     fun getMarkerValue(index: Int): String
 
-}
+}*/
