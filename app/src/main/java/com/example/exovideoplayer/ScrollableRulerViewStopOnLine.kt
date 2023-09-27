@@ -3,6 +3,9 @@ package com.example.exovideoplayer
 /*import com.assetgro.stockgro.R
 import com.assetgro.stockgro.utils.common.topx
 import com.assetgro.stockgro.utils.log.Logger*/
+import android.animation.Animator
+import android.animation.AnimatorListenerAdapter
+import android.animation.ObjectAnimator
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -17,6 +20,9 @@ import android.util.Log
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
+import android.view.animation.AccelerateDecelerateInterpolator
+import android.view.animation.AccelerateInterpolator
+import android.view.animation.DecelerateInterpolator
 import android.view.animation.LinearInterpolator
 import android.widget.OverScroller
 import android.widget.Scroller
@@ -29,7 +35,7 @@ import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
-class ScrollableRulerView(context: Context, attrs: AttributeSet?) : View(context, attrs) {
+class ScrollableRulerViewStopOnLine(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
     private var cachedBitmap: Bitmap? = null
     private var cacheValid = false
@@ -75,7 +81,6 @@ class ScrollableRulerView(context: Context, attrs: AttributeSet?) : View(context
     private val snapDuration: Int = 300 // Adjust the snap duration as needed
 
 
-
     var rulerStartValue = 0
         set(value) {
             field = value
@@ -103,7 +108,7 @@ class ScrollableRulerView(context: Context, attrs: AttributeSet?) : View(context
     var initialXValue = 0F
     private var lastTouchX = 0f
 
-    fun moveToIndex(index: Int) {
+    /*fun moveToIndex(index: Int) {
         val rulerIndexForComputing =
             if (index > rulerEndValue) rulerEndValue else if (index < rulerStartValue) rulerStartValue else index
         val computedRulerValue = rulerIndexForComputing * rulerIncrementValue
@@ -120,24 +125,116 @@ class ScrollableRulerView(context: Context, attrs: AttributeSet?) : View(context
             searchJob = coroutineScope.launch {
                 rulerValue.let {
                     delay(debouncePeriod)
-                    /*Logger.d(
-                        TAG,
-                        "Value emitted after scroll: ${
-                            scrollableRulerFormatter?.getMarkerValue(rulerValue)
-                        }"
-                    )*/
                     callback.onRulerValueChanged(rulerValue)
                 }
             }
         }
         isContentVisible = true
         invalidateCache()
+    }*/
+
+    fun moveToIndex(index: Int, dx:Int = 0) {
+        val rulerIndexForComputing =
+            if (index > rulerEndValue) rulerEndValue else if (index < rulerStartValue) rulerStartValue else index
+        val computedRulerValue = rulerIndexForComputing * rulerIncrementValue
+        val offsetX = middleOfScreen - (computedRulerValue * gapBetweenLines)
+        val animator = ObjectAnimator.ofFloat(this, "initialXValue", initialXValue, offsetX)
+        animator.duration = 300
+        Log.d(TAG, "dx value = $dx")
+        animator.interpolator = if (dx < 0) LinearInterpolator() else null
+        animator.start()
+
+        animator.addUpdateListener { animation ->
+            val currentValue = animation.animatedValue as Float
+            initialXValue = currentValue
+            lastTouchX = currentValue
+            rulerValue = computedRulerValue
+
+            listener?.let { callback ->
+                searchJob?.cancel()
+                searchJob = coroutineScope.launch {
+                    rulerValue.let {
+                        delay(debouncePeriod)
+                        callback.onRulerValueChanged(rulerValue)
+                    }
+                }
+            }
+            isContentVisible = true
+            invalidateCache()
+        }
+
+        animator.addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: Animator) {
+                super.onAnimationEnd(animation)
+                // Ensure that the final position is set
+                initialXValue = offsetX
+                lastTouchX = offsetX
+            }
+
+            override fun onAnimationStart(animation: Animator) {
+                super.onAnimationStart(animation)
+            }
+        })
+
+        animator.start()
     }
+
+    /*fun moveToIndex(index: Int, direction: ScrollDirection? = null) {
+        val rulerIndexForComputing =
+            if (index > rulerEndValue) rulerEndValue else if (index < rulerStartValue) rulerStartValue else index
+        val computedRulerValue = rulerIndexForComputing * rulerIncrementValue
+
+        // Calculate offsetX based on the scrolling direction
+        val offsetX = when (direction) {
+            ScrollDirection.LEFT -> middleOfScreen - (computedRulerValue * gapBetweenLines)
+            ScrollDirection.RIGHT -> middleOfScreen + (computedRulerValue * gapBetweenLines)
+            else -> middleOfScreen - (computedRulerValue * gapBetweenLines)
+        }
+
+        // Adjust the duration based on the absolute value of dx to make it smooth
+        //val duration = Math.abs(dx) * 2 // You can experiment with different values
+
+        val animator = ObjectAnimator.ofFloat(this, "initialXValue", initialXValue, offsetX)
+        animator.duration = 300//duration.toLong()
+        animator.interpolator = LinearInterpolator()
+
+        animator.addUpdateListener { animation ->
+            val currentValue = animation.animatedValue as Float
+            initialXValue = currentValue
+            lastTouchX = currentValue
+            rulerValue = computedRulerValue
+
+            listener?.let { callback ->
+                searchJob?.cancel()
+                searchJob = coroutineScope.launch {
+                    rulerValue.let {
+                        delay(debouncePeriod)
+                        callback.onRulerValueChanged(rulerValue)
+                    }
+                }
+            }
+            isContentVisible = true
+            invalidateCache()
+        }
+
+        animator.addListener(object : AnimatorListenerAdapter() {
+            override fun onAnimationEnd(animation: Animator) {
+                super.onAnimationEnd(animation)
+                // Ensure that the final position is set
+                initialXValue = offsetX
+                lastTouchX = offsetX
+            }
+        })
+
+        animator.start()
+    }*/
+
 
     fun enableShadow(enable: Boolean = false) {
         isShadowEnabled = enable
         invalidate() // Invalidate the view to trigger a redraw with the updated shadow state
     }
+
     private val scroller = Scroller(context, LinearInterpolator())
 
 
@@ -358,10 +455,12 @@ class ScrollableRulerView(context: Context, attrs: AttributeSet?) : View(context
         else paint.clearShadowLayer()
     }
 
+    var previousRulerValue = -1
+
     override fun onTouchEvent(event: MotionEvent): Boolean {
         when (event.action) {
             MotionEvent.ACTION_DOWN -> {
-                scroller.forceFinished(true) // Stop any ongoing scroll animations
+                //scroller.forceFinished(true) // Stop any ongoing scroll animations
                 lastTouchX = event.x
                 rulerViewPressed = true
                 isContentVisible = true
@@ -375,12 +474,14 @@ class ScrollableRulerView(context: Context, attrs: AttributeSet?) : View(context
                 invalidateCache()
                 val snapPosition = calculateSnappedPosition()
                 // Animate to the snapped position
-                smoothScrollToPosition(snapPosition.toInt())
+                //smoothScrollToPosition(rulerValue)
+                //moveToIndex(rulerValue)
                 parent?.requestDisallowInterceptTouchEvent(false)
             }
 
             MotionEvent.ACTION_MOVE -> {
                 val dx = (event.x - lastScrollX).toInt()
+                Log.d(TAG, "dx = $dx eventX = ${event.x}")
                 if (dx != 0) {
                     lastScrollX = event.x
                 }
@@ -396,32 +497,20 @@ class ScrollableRulerView(context: Context, attrs: AttributeSet?) : View(context
                 }
 
                 // Calculate the rulerValue based on the current initialXValue
-                rulerValue = calculateRulerValue(initialXValue)
+                val newRulerValue = calculateRulerValue(initialXValue)
 
-                //moveToIndex(rulerValue)
+                Log.d(TAG, "newRulerValue = $newRulerValue previousRulerValue = $previousRulerValue")
 
-                listener?.onRulerValueChanged(rulerValue)
+                // Check if the rulerValue has changed
+                if (newRulerValue != previousRulerValue) {
+                    rulerValue = newRulerValue
 
-                // Notify the listener with the snapped rulerValue
-                /*listener?.let { callback ->
-                    searchJob?.cancel()
-                    searchJob = coroutineScope.launch {
-                        rulerValue.let {
-                            delay(debouncePeriod)
-                            Log.d(
-                                TAG,
-                                "Value emitted after scroll: ${
-                                    scrollableRulerFormatter?.getMarkerValue(rulerValue)
-                                }"
-                            )
-                            callback.onRulerValueChanged(rulerValue)
-                        }
-                    }
-                }*/
+                    // Call moveToIndex only if the rulerValue has changed
+                    moveToIndex(rulerValue, dx)
 
-                // Invalidate the cache and update lastTouchX
-                invalidateCache()
-                lastTouchX = event.x
+                    // Update the previousRulerValue
+                    previousRulerValue = rulerValue
+                }
             }
         }
         return true
@@ -452,10 +541,8 @@ class ScrollableRulerView(context: Context, attrs: AttributeSet?) : View(context
     // Calculate rulerValue based on initialXValue
     private fun calculateRulerValue(initialXValue: Float): Int {
         return if (initialXValue < 0) {
-            Log.d(TAG, "calculated ruler value = ${rulerStartValue + (((initialXValue.absoluteValue + middleOfScreen) / gapBetweenLines) * rulerIncrementValue).toInt()}")
             rulerStartValue + (((initialXValue.absoluteValue + middleOfScreen) / gapBetweenLines) * rulerIncrementValue).toInt()
         } else {
-            Log.d(TAG, "calculated ruler value = ${rulerStartValue + (((middleOfScreen - initialXValue) / gapBetweenLines) * rulerIncrementValue).toInt()}")
             rulerStartValue + (((middleOfScreen - initialXValue) / gapBetweenLines) * rulerIncrementValue).toInt()
         }
     }
@@ -540,7 +627,7 @@ class ScrollableRulerView(context: Context, attrs: AttributeSet?) : View(context
 
 }
 
-interface OnRulerValueChangeListener {
+/*interface OnRulerValueChangeListener {
     fun onRulerValueChanged(rulerValue: Int)
 }
 
@@ -549,4 +636,4 @@ interface ScrollableRulerFormatter {
     fun getRulerValue(index: Int): String
     fun getMarkerValue(index: Int): String
 
-}
+}*/

@@ -48,10 +48,73 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(viewBinding.root)
         addItems()
-        scrollView()
+        showScrollWidget()
         output = computeBreakEvenChartOutputData(inputData)
         drawLineChart()
         //resetChart()
+    }
+
+    private fun showScrollWidget() {
+        viewBinding.showScrollWidgetBtn.setOnClickListener {
+            viewBinding.scrollableRulerSmoothScroller.visibility = View.VISIBLE
+            viewBinding.smootText.visibility = View.VISIBLE
+
+            viewBinding.scrollableRulerSnapper.visibility = View.GONE
+            viewBinding.snapText.visibility = View.GONE
+
+            viewBinding.scrollableRuler.visibility = View.GONE
+            viewBinding.recentText.visibility = View.GONE
+
+            viewBinding.scrollableRulerStopOnlineScroller.visibility = View.GONE
+            viewBinding.stopOnlineText.visibility = View.GONE
+            scrollViewSmoothScroller()
+        }
+
+        viewBinding.showScrollWidgetSnapperBtn.setOnClickListener {
+            viewBinding.scrollableRulerSnapper.visibility = View.VISIBLE
+            viewBinding.snapText.visibility = View.VISIBLE
+
+            viewBinding.scrollableRuler.visibility = View.GONE
+            viewBinding.recentText.visibility = View.GONE
+
+            viewBinding.scrollableRulerSmoothScroller.visibility = View.GONE
+            viewBinding.smootText.visibility = View.GONE
+
+            viewBinding.scrollableRulerStopOnlineScroller.visibility = View.GONE
+            viewBinding.stopOnlineText.visibility = View.GONE
+            scrollViewSnapper()
+        }
+
+        viewBinding.showScrollWidgetRecentBtn.setOnClickListener {
+            viewBinding.scrollableRuler.visibility = View.VISIBLE
+            viewBinding.recentText.visibility = View.VISIBLE
+
+            viewBinding.scrollableRulerSnapper.visibility = View.GONE
+            viewBinding.snapText.visibility = View.GONE
+
+            viewBinding.scrollableRulerSmoothScroller.visibility = View.GONE
+            viewBinding.smootText.visibility = View.GONE
+
+            viewBinding.scrollableRulerStopOnlineScroller.visibility = View.GONE
+            viewBinding.stopOnlineText.visibility = View.GONE
+            scrollView()
+        }
+
+        viewBinding.showScrollWidgetStopOnlineBtn.setOnClickListener {
+            viewBinding.scrollableRuler.visibility = View.GONE
+            viewBinding.recentText.visibility = View.GONE
+
+            viewBinding.scrollableRulerSnapper.visibility = View.GONE
+            viewBinding.snapText.visibility = View.GONE
+
+            viewBinding.scrollableRulerSmoothScroller.visibility = View.GONE
+            viewBinding.smootText.visibility = View.GONE
+
+            viewBinding.scrollableRulerStopOnlineScroller.visibility = View.VISIBLE
+            viewBinding.stopOnlineText.visibility = View.VISIBLE
+
+            scrollViewStopOnLineScroller()
+        }
     }
 
     private fun addItems() {
@@ -103,8 +166,44 @@ class MainActivity : AppCompatActivity() {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
                 val scrollRuler = viewBinding.scrollableRuler
                 scrollRuler.rulerStartValue = 0
-                scrollRuler.rulerEndValue = 1000
-                scrollRuler.moveToIndex(243)
+                scrollRuler.rulerEndValue = 100
+                scrollRuler.moveToIndex(20)
+                scrollRuler.enableShadow(false)
+            }
+        }
+    }
+
+    private fun scrollViewSnapper() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                val scrollRuler = viewBinding.scrollableRulerSnapper
+                scrollRuler.rulerStartValue = 0
+                scrollRuler.rulerEndValue = 100
+                scrollRuler.moveToIndex(20)
+                scrollRuler.enableShadow(false)
+            }
+        }
+    }
+
+    private fun scrollViewSmoothScroller() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                val scrollRuler = viewBinding.scrollableRulerSmoothScroller
+                scrollRuler.rulerStartValue = 0
+                scrollRuler.rulerEndValue = 100
+                scrollRuler.moveToIndex(20)
+                scrollRuler.enableShadow(false)
+            }
+        }
+    }
+
+    private fun scrollViewStopOnLineScroller() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                val scrollRuler = viewBinding.scrollableRulerStopOnlineScroller
+                scrollRuler.rulerStartValue = 0
+                scrollRuler.rulerEndValue = 100
+                scrollRuler.moveToIndex(20)
                 scrollRuler.enableShadow(false)
             }
         }
