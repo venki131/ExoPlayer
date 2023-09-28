@@ -23,14 +23,17 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MimeTypes
 import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
+import androidx.paging.PagingData
 import androidx.recyclerview.widget.RecyclerView
 import com.example.exovideoplayer.databinding.ActivityPlayerBinding
+import kotlinx.coroutines.launch
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
@@ -118,7 +121,11 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
             getString(R.string.media_url_mp3),
         )
 
-        val adapter = VideoRvAdapter(videoList)
+        //val adapter = VideoRvAdapter(videoList)
+        val adapter = VideoPagingAdapter()
+        lifecycleScope.launch {
+            adapter.submitData(PagingData.from(listOf(getString(R.string.media_url_mp4), getString(R.string.media_url_mp3), getString(R.string.media_url_mp4), getString(R.string.media_url_mp3))))
+        }
         recyclerView?.adapter = adapter
         val videoPlayScrollListener = VideoPlayScrollListener(lifecycleOwner)
         recyclerView?.addOnScrollListener(videoPlayScrollListener)
