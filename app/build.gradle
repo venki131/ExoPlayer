@@ -49,6 +49,7 @@ android {
 }
 
 def mediaVersion = "1.0.1"
+def paging_version = "3.2.1"
 def mp_chart_version = "v3.1.0"
 def workManager = "2.7.1"
 dependencies {
@@ -78,6 +79,8 @@ dependencies {
     androidTestImplementation 'androidx.compose.ui:ui-test-junit4'
     debugImplementation 'androidx.compose.ui:ui-tooling'
     debugImplementation 'androidx.compose.ui:ui-test-manifest'
+
+    implementation("androidx.paging:paging-runtime:$paging_version")
 
     //work manager
     implementation "androidx.work:work-runtime:2.8.1"
