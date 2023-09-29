@@ -44,7 +44,7 @@ class CustomMarkerView(
         textPaint.color = Color.BLACK
         textPaint.style = Paint.Style.FILL_AND_STROKE
         textPaint.isAntiAlias = true
-        textPaint.textSize = 20f
+        textPaint.textSize = 25f
         markerView = findViewById(R.id.marker_view)
 
         // Convert dp to pixels
@@ -124,6 +124,7 @@ class CustomMarkerView(
 
                 text = formattedText
                 setTextColor(Color.BLACK)
+                setPadding(0,0,0,10)
                 visibility = VISIBLE
             }
 
@@ -198,7 +199,7 @@ class CustomMarkerView(
                 Layout.Alignment.ALIGN_NORMAL,
                 1f,
                 0f,
-                false
+                true
             )
             it.translate(adjustedPosX, adjustedPosY)
             textLayout.draw(it)

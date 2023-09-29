@@ -12,9 +12,10 @@
         android:layout_marginHorizontal="20dp"
         android:layout_marginBottom="20dp"
         android:gravity="end"
+        android:paddingBottom="16dp"
         android:paddingHorizontal="20dp"
         android:textColor="@color/black"
-        android:textSize="12sp"
+        android:textSize="35sp"
         tools:text="Nifty 50| 9240.34| 2.04%"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
