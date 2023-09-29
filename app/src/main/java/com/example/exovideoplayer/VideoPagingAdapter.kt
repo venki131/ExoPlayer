@@ -16,16 +16,14 @@ class VideoPagingAdapter :
     }
 
     override fun onBindViewHolder(holder: VideoViewHolder, position: Int) {
-        val item = getItem(position)
-        /*if (item == null) {
-            holder.clear() // Clear the view if the item is null (used for placeholders).
-        } else {*/
-            holder.bind(item, currentPlaybackPos)
-            holder.bookmark.setOnClickListener {
-                currentPlaybackPos = holder.getPlaybackPos()
-                notifyItemChanged(position)
-            }
-        //}
+        if (position == 3) {
+            holder.showImage()
+        }
+        holder.bind(getItem(position), currentPlaybackPos)
+        holder.bookmark.setOnClickListener {
+            currentPlaybackPos = holder.getPlaybackPos()
+            notifyItemChanged(position)
+        }
     }
 
     // Custom DiffUtil callback to compare items.
