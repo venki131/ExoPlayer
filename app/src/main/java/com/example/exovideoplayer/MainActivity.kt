@@ -7,6 +7,7 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.view.marginTop
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -738,7 +739,7 @@ class MainActivity : AppCompatActivity() {
             addLimitLine(LimitLine(maxY.toFloat()).apply {
                 lineWidth = 1.5f
                 lineColor = Color.argb(40, 26, 26, 26)
-                enableDashedLine(8.0f, 10.0f, 0.0f)
+                enableDashedLine(20.0f, 25.0f, 0.0f)
                 labelPosition = LimitLine.LimitLabelPosition.LEFT_TOP
             }).also {
                 setDrawTopYLabelEntry(false)
@@ -746,7 +747,7 @@ class MainActivity : AppCompatActivity() {
             addLimitLine(LimitLine(-maxY.toFloat()).apply {
                 lineWidth = 1.5f
                 lineColor = Color.argb(40, 26, 26, 26)
-                enableDashedLine(8.0f, 10.0f, 0.0f)
+                enableDashedLine(20.0f, 25.0f, 0.0f)
             })
 
             // Customize the axis labels
