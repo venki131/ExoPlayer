@@ -124,7 +124,7 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
         //val adapter = VideoRvAdapter(videoList)
         val adapter = VideoPagingAdapter()
         lifecycleScope.launch {
-            adapter.submitData(PagingData.from(listOf(getString(R.string.media_url_mp4), getString(R.string.media_url_mp3), getString(R.string.media_url_mp4), getString(R.string.media_url_mp3))))
+            adapter.submitData(PagingData.from(listOf(getString(R.string.media_url_mp4), "" ,getString(R.string.media_url_mp3), getString(R.string.media_url_mp4), getString(R.string.media_url_mp3))))
         }
         recyclerView?.adapter = adapter
         val videoPlayScrollListener = VideoPlayScrollListener(lifecycleOwner)

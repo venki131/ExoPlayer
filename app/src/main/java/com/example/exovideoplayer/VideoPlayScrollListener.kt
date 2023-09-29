@@ -1,41 +1,56 @@
 package com.example.exovideoplayer
 
+import android.content.res.Resources
 import android.graphics.Rect
-import android.view.View
 import androidx.lifecycle.LifecycleOwner
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
 class VideoPlayScrollListener(
     private val lifecycleOwner: LifecycleOwner
 ) : RecyclerView.OnScrollListener() {
+    private var lastVisibleViewHolder: VideoViewHolder? = null
+
     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
         super.onScrolled(recyclerView, dx, dy)
-        // Attach the player to the top-most item if it's scrolled at least 50% off the screen
-        recyclerView.adapter?.let { rvAdapter ->
-            for (i in 0 until rvAdapter.itemCount) {
-                val viewHolder =
-                    recyclerView.findViewHolderForAdapterPosition(i) as? VideoViewHolder
-                viewHolder?.let {
-                    isVideoPlayerCompletelyVisible(it, viewHolder.itemView)
-                }.apply {
-                    if (this == true) {
-                        viewHolder?.onViewAttachedToWindow(lifecycleOwner)
-                    } else {
-                        viewHolder?.onViewDetachedFromWindow(lifecycleOwner)
-                    }
-                }
+
+        // Find the first visible item position
+        val firstVisiblePosition =
+            (recyclerView.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+
+        // Get the first visible ViewHolder
+        val firstVisibleViewHolder =
+            recyclerView.findViewHolderForAdapterPosition(firstVisiblePosition) as? VideoViewHolder
+
+        // Check if the first visible ViewHolder has changed
+        if (firstVisibleViewHolder != lastVisibleViewHolder) {
+            // Detach the player from the last visible ViewHolder
+            lastVisibleViewHolder?.onViewDetachedFromWindow(lifecycleOwner)
+
+            // Attach the player to the new visible ViewHolder if its VideoPlayer is completely visible
+            if (isVideoPlayerVisible(firstVisibleViewHolder?.player)) {
+                firstVisibleViewHolder?.onViewAttachedToWindow(lifecycleOwner)
             }
+
+            // Update the last visible ViewHolder
+            lastVisibleViewHolder = firstVisibleViewHolder
         }
     }
+
     // Check if the VideoPlayer view is completely visible within its parent
-    private fun isVideoPlayerCompletelyVisible(videoViewHolder: VideoViewHolder, parent: View): Boolean {
-        val videoPlayerView = videoViewHolder.player // Adjust this to your actual VideoPlayer view
+    private fun isVideoPlayerVisible(videoPlayer: VideoPlayer?): Boolean {
         val rect = Rect()
-        parent.getLocalVisibleRect(rect)
-        // Check if the visible portion of the VideoPlayer view covers the entire view's height (or width)
-        return videoPlayerView.getLocalVisibleRect(rect) && rect.bottom - rect.top >= videoPlayerView.height
+        videoPlayer?.getGlobalVisibleRect(rect)
+
+        val screenHeight = Resources.getSystem().displayMetrics.heightPixels
+        val videoPlayerHeight = videoPlayer?.height ?: 0 // Get the height of the VideoPlayer
+
+        // Check if the VideoPlayer's height is completely visible within the screen's height
+        return rect.top >= 0 && rect.bottom <= screenHeight && rect.height() >= videoPlayerHeight
     }
 }
+
+
 
 
 
