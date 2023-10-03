@@ -14,6 +14,7 @@ import android.text.style.StyleSpan
 import android.util.Log
 import android.widget.TextView
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import com.github.mikephil.charting.components.MarkerView
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineDataSet
@@ -36,7 +37,10 @@ class CustomMarkerView(
     private var offset: MPPointF? = null
 
     private var horizontalMargin: Float
+    val fontTypeFace = ResourcesCompat.getFont(context, R.font.aladin)
+    //paintText.typeface = typeface
 
+    //val fontTypeFace = Typeface.createFromAsset(context.assets, "fonts/alfa_slab_one.ttf")
     init {
         dotPaint.isAntiAlias = true
         dotPaint.style = Paint.Style.FILL
@@ -45,6 +49,7 @@ class CustomMarkerView(
         textPaint.style = Paint.Style.FILL_AND_STROKE
         textPaint.isAntiAlias = true
         textPaint.textSize = 25f
+        textPaint.typeface = fontTypeFace
         markerView = findViewById(R.id.marker_view)
 
         // Convert dp to pixels

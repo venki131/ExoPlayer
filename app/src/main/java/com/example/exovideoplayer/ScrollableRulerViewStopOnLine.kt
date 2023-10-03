@@ -15,6 +15,7 @@ import android.graphics.Path
 import android.graphics.PointF
 import android.graphics.PorterDuff
 import android.graphics.RectF
+import android.graphics.Typeface
 import android.util.AttributeSet
 import android.util.Log
 import android.util.TypedValue
@@ -27,6 +28,7 @@ import android.view.animation.LinearInterpolator
 import android.widget.OverScroller
 import android.widget.Scroller
 import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -80,6 +82,8 @@ class ScrollableRulerViewStopOnLine(context: Context, attrs: AttributeSet?) : Vi
     private var snappedPosition: Float = 0f
     private val snapDuration: Int = 300 // Adjust the snap duration as needed
 
+    // Load the custom font from the assets folder
+    val fontTypeFace = ResourcesCompat.getFont(context, R.font.aladin)
 
     var rulerStartValue = 0
         set(value) {
@@ -300,12 +304,14 @@ class ScrollableRulerViewStopOnLine(context: Context, attrs: AttributeSet?) : Vi
             color = Color.WHITE
             textAlign = Paint.Align.CENTER
             textSize = textSizePointerText
+            typeface = fontTypeFace
         }
 
         paintLegend.apply {
             color = Color.GRAY
             textAlign = Paint.Align.CENTER
             textSize = legendTextSize
+            typeface = fontTypeFace
         }
     }
 

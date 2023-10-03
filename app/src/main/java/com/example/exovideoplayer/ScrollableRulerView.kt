@@ -12,6 +12,7 @@ import android.graphics.Path
 import android.graphics.PointF
 import android.graphics.PorterDuff
 import android.graphics.RectF
+import android.graphics.Typeface
 import android.util.AttributeSet
 import android.util.Log
 import android.util.TypedValue
@@ -74,7 +75,8 @@ class ScrollableRulerView(context: Context, attrs: AttributeSet?) : View(context
     private var snappedPosition: Float = 0f
     private val snapDuration: Int = 300 // Adjust the snap duration as needed
 
-
+    // Load the custom font from the assets folder
+    val fontTypeFace = Typeface.createFromAsset(context.assets, "fonts/aclonica.ttf")
 
     var rulerStartValue = 0
         set(value) {
@@ -198,10 +200,10 @@ class ScrollableRulerView(context: Context, attrs: AttributeSet?) : View(context
             textSize = textSize
         }
 
-
         paintText.apply {
             color = Color.WHITE
             textAlign = Paint.Align.CENTER
+            typeface = fontTypeFace // Set the custom font to the paintText object
             textSize = textSizePointerText
         }
 

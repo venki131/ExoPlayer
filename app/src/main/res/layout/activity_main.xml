@@ -15,12 +15,12 @@
         tools:context=".MainActivity">
 
         <TextView
+            android:id="@+id/dummy_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/dummy_text"
             android:gravity="center"
-            app:layout_constraintTop_toTopOf="parent"
-            android:text="BE Chart Data and Switch"/>
+            android:text="BE Chart Data and Switch"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <com.github.mikephil.charting.charts.LineChart
             android:id="@+id/history_chart"
@@ -37,11 +37,11 @@
             android:id="@+id/recent_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Recent Changes"
             android:gravity="center"
-            android:visibility="gone"
+            android:text="Recent Changes"
             android:textStyle="bold"
-            app:layout_constraintTop_toBottomOf="@id/history_chart"/>
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="@id/history_chart" />
 
         <com.example.exovideoplayer.ScrollableRulerView
             android:id="@+id/scrollable_ruler"
