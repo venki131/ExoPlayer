@@ -1,4 +1,4 @@
-package com.example.exovideoplayer
+package com.example.exovideoplayer.ui
 
 //import com.assetgro.stockgro.databinding.LayoutVideoPlayerBinding
 import android.content.Context
@@ -21,6 +21,7 @@ import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
+import com.example.exovideoplayer.R
 import com.example.exovideoplayer.databinding.LayoutVideoPlayerBinding
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

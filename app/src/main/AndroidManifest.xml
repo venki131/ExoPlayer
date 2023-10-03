@@ -43,7 +43,7 @@
             android:hardwareAccelerated="true"
             android:theme="@style/PlayerTheme" />
         <activity
-            android:name=".PlayerActivity"
+            android:name=".ui.PlayerActivity"
             android:configChanges="keyboard|keyboardHidden|orientation|screenSize|screenLayout|smallestScreenSize|uiMode"
             android:exported="true"
             android:hardwareAccelerated="true"
