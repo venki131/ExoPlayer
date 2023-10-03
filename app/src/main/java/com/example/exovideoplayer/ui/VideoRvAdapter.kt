@@ -1,8 +1,9 @@
-package com.example.exovideoplayer
+package com.example.exovideoplayer.ui
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.example.exovideoplayer.R
 
 var isGlobalMuted = false
 class VideoRvAdapter(

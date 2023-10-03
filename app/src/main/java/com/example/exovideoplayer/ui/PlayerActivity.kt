@@ -1,4 +1,4 @@
-package com.example.exovideoplayer
+package com.example.exovideoplayer.ui
 
 import android.annotation.SuppressLint
 import android.content.pm.ActivityInfo
@@ -17,12 +17,16 @@ import android.widget.ImageView
 import android.widget.ListView
 import android.widget.SeekBar
 import android.widget.TextView
+import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
+import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.MediaItem
@@ -32,22 +36,27 @@ import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
 import androidx.paging.PagingData
 import androidx.recyclerview.widget.RecyclerView
+import com.example.exovideoplayer.CustomSelectionAdapter
+import com.example.exovideoplayer.R
 import com.example.exovideoplayer.databinding.ActivityPlayerBinding
+import com.example.exovideoplayer.domain.repository.SamplePagingRepository
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.util.Locale
 import java.util.concurrent.TimeUnit
 
-
-private const val TAG = "PlayerActivity"
-
 /**
  * A fullscreen activity to play audio or video streams.
  */
+
+private const val TAG = "PlayerActivity"
 class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
 
     private val viewBinding by lazy(LazyThreadSafetyMode.NONE) {
         ActivityPlayerBinding.inflate(layoutInflater)
     }
+
+    private val model: SamplePagingViewModel by viewModels()
 
     private val playbackStateListener: Player.Listener = playbackStateListener()
     private var player: Player? = null
@@ -123,8 +132,24 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
 
         //val adapter = VideoRvAdapter(videoList)
         val adapter = VideoPagingAdapter()
-        lifecycleScope.launch {
-            adapter.submitData(PagingData.from(listOf(getString(R.string.media_url_mp4), "" ,getString(R.string.media_url_mp3), getString(R.string.media_url_mp4), getString(R.string.media_url_mp3))))
+        /*lifecycleScope.launch {
+            adapter.submitData(
+                PagingData.from(
+                    listOf(
+                        getString(R.string.media_url_mp4),
+                        "",
+                        getString(R.string.media_url_mp3),
+                        getString(R.string.media_url_mp4),
+                        getString(R.string.media_url_mp3)
+                    )
+                )
+            )
+        }*/
+
+        lifecycleScope.launchWhenCreated {
+            model.pageList.collectLatest {
+                adapter.submitData(it)
+            }
         }
         recyclerView?.adapter = adapter
         val videoPlayScrollListener = VideoPlayScrollListener(lifecycleOwner)

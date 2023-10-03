@@ -1,4 +1,4 @@
-package com.example.exovideoplayer
+package com.example.exovideoplayer.ui
 
 import android.util.Log
 import android.view.View
@@ -6,6 +6,7 @@ import android.widget.ImageButton
 import android.widget.ImageView
 import androidx.lifecycle.LifecycleOwner
 import androidx.recyclerview.widget.RecyclerView
+import com.example.exovideoplayer.R
 
 class VideoViewHolder(
     itemView: View

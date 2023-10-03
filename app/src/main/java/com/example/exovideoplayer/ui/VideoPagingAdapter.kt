@@ -1,9 +1,10 @@
-package com.example.exovideoplayer
+package com.example.exovideoplayer.ui
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
+import com.example.exovideoplayer.R
 
 class VideoPagingAdapter :
     PagingDataAdapter<String, VideoViewHolder>(StringDiffCallback()) {
