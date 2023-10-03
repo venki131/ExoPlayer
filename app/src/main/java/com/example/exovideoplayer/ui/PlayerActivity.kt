@@ -24,10 +24,12 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.AbstractSavedStateViewModelFactory
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.media3.common.AudioAttributes
 import androidx.media3.common.MediaItem
 import androidx.media3.common.MimeTypes
@@ -146,11 +148,14 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
             )
         }*/
 
-        lifecycleScope.launchWhenCreated {
-            model.pageList.collectLatest {
-                adapter.submitData(it)
+        lifecycleScope.launch {
+            lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                model.pageList.collectLatest {
+                    adapter.submitData(it)
+                }
             }
         }
+
         recyclerView?.adapter = adapter
         val videoPlayScrollListener = VideoPlayScrollListener(lifecycleOwner)
         recyclerView?.addOnScrollListener(videoPlayScrollListener)
