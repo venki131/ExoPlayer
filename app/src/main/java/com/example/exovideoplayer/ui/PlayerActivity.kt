@@ -42,6 +42,7 @@ import com.example.exovideoplayer.CustomSelectionAdapter
 import com.example.exovideoplayer.R
 import com.example.exovideoplayer.databinding.ActivityPlayerBinding
 import com.example.exovideoplayer.domain.repository.SamplePagingRepository
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import java.util.Locale
@@ -52,6 +53,7 @@ import java.util.concurrent.TimeUnit
  */
 
 private const val TAG = "PlayerActivity"
+@AndroidEntryPoint
 class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
 
     private val viewBinding by lazy(LazyThreadSafetyMode.NONE) {
@@ -150,10 +152,14 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                model.pageList.collectLatest {
+                model.pageListFlow.collectLatest {
                     adapter.submitData(it)
                 }
             }
+        }
+
+        lifecycleScope.launch {
+            model.updatePageList(videoList[0]!!)
         }
 
         recyclerView?.adapter = adapter

@@ -15,7 +15,7 @@ import javax.inject.Singleton
 abstract class RepositoryModule {
     @Binds
     @Singleton
-    abstract fun bindGalleryRepository(
+    abstract fun bindListRepository(
         pagingRepo: SamplePagingRepositoryImpl
     ): SamplePagingRepository
 }
