@@ -19,6 +19,8 @@ class SamplePagingSource(
         }
     }
 
+    val videoList = listOf("https://storage.googleapis.com/exoplayer-test-media-0/BigBuckBunny_320x180.mp4", "https://storage.googleapis.com/exoplayer-test-media-0/Jazz_In_Paris.mp3")
+
     override suspend fun load(params: LoadParams<String>): LoadResult<String, String> {
         return try {
             val data = api.getList(
@@ -26,12 +28,13 @@ class SamplePagingSource(
                 before = if (params is LoadParams.Prepend) params.key else null,
                 start = 0,
                 limit = params.loadSize
-            ).data
+            )[0]
 
+            //TODO change the prevKey, data and nextKey here accordingly
             LoadResult.Page(
-                data = data.dataList.map { it.url },
-                prevKey = data.before,
-                nextKey = data.after
+                data = videoList,//data.dataList.map { it.url },
+                prevKey = "",//if (data.data.before != null) data.data.before else null,
+                nextKey = ""//if (data.data.after != null) data.data.after else null
             )
         } catch (e: IOException) {
             LoadResult.Error(e)
@@ -39,4 +42,8 @@ class SamplePagingSource(
             LoadResult.Error(e)
         }
     }
+
+    override val keyReuseSupported: Boolean
+        get() = true
+
 }

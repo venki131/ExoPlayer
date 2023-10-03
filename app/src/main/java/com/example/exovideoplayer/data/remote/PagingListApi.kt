@@ -12,5 +12,5 @@ interface PagingListApi {
         @Query("before") before: String? = null,
         @Query("_start") start: Int,
         @Query("_limit") limit: Int? = 10,
-    ): ListResponseDto
+    ): List<ListResponseDto>
 }

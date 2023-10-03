@@ -7,10 +7,14 @@ import com.example.exovideoplayer.data.remote.ListResponseDtoItem
 import com.example.exovideoplayer.data.remote.PagingListApi
 import com.example.exovideoplayer.domain.repository.SamplePagingRepository
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
-class SamplePagingRepositoryImpl(private val pagingListApi: PagingListApi) : SamplePagingRepository {
-    override fun listOfPagingData(pageSize: Int)= Pager(
-    PagingConfig(pageSize)
+class SamplePagingRepositoryImpl @Inject constructor(
+    private val pagingListApi: PagingListApi
+) :
+    SamplePagingRepository {
+    override fun listOfPagingData(pageSize: Int) = Pager(
+        PagingConfig(pageSize)
     ) {
         SamplePagingSource(api = pagingListApi)
     }.flow
