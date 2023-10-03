@@ -9,6 +9,9 @@ import java.io.IOException
 class SamplePagingSource(
     private val api: PagingListApi
 ): PagingSource<String, String>() {
+
+    private var currentStart = 0 // Track the current starting position of the data
+
     override fun getRefreshKey(state: PagingState<String, String>): String? {
         return state.anchorPosition?.let { anchorPosition ->
             // This loads starting from previous page, but since PagingConfig.initialLoadSize spans
@@ -26,15 +29,18 @@ class SamplePagingSource(
             val data = api.getList(
                 after = if (params is LoadParams.Append) params.key else null,
                 before = if (params is LoadParams.Prepend) params.key else null,
-                start = 0,
+                start = currentStart,
                 limit = params.loadSize
             )[0]
+
+            // Update the current starting position for the next load
+            currentStart += params.loadSize
 
             //TODO change the prevKey, data and nextKey here accordingly
             LoadResult.Page(
                 data = videoList,//data.dataList.map { it.url },
                 prevKey = "",//if (data.data.before != null) data.data.before else null,
-                nextKey = ""//if (data.data.after != null) data.data.after else null
+                nextKey = currentStart.toString()//if (data.data.after != null) data.data.after else null
             )
         } catch (e: IOException) {
             LoadResult.Error(e)
