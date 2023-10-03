@@ -29,18 +29,20 @@ class SamplePagingSource(
             val data = api.getList(
                 after = if (params is LoadParams.Append) params.key else null,
                 before = if (params is LoadParams.Prepend) params.key else null,
-                start = currentStart,
+                start = 0,
                 limit = params.loadSize
-            )[0]
+            ).map {
+                it.data
+            }
 
             // Update the current starting position for the next load
             currentStart += params.loadSize
 
             //TODO change the prevKey, data and nextKey here accordingly
             LoadResult.Page(
-                data = videoList,//data.dataList.map { it.url },
-                prevKey = "",//if (data.data.before != null) data.data.before else null,
-                nextKey = currentStart.toString()//if (data.data.after != null) data.data.after else null
+                data = videoList,//data[0].dataList.map { it.url },
+                prevKey = null,//if (data.data.before != null) data.data.before else null,
+                nextKey = ""//if (data.data.after != null) data.data.after else null
             )
         } catch (e: IOException) {
             LoadResult.Error(e)

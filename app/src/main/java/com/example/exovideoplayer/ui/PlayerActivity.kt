@@ -152,14 +152,10 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
 
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                model.pageListFlow.collectLatest {
+                model.pageList.collectLatest {
                     adapter.submitData(it)
                 }
             }
-        }
-
-        lifecycleScope.launch {
-            model.updatePageList(videoList[0]!!)
         }
 
         recyclerView?.adapter = adapter
