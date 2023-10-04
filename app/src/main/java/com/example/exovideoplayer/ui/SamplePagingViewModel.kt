@@ -24,14 +24,14 @@ class SamplePagingViewModel @Inject constructor(
 
     init {
         if (!savedStateHandle.contains(KEY_LIST)) {
-            savedStateHandle.set(KEY_LIST, DEFAULT_LIST)
+            savedStateHandle[KEY_LIST] = DEFAULT_LIST
         }
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     val pageList = savedStateHandle.getLiveData<String>(KEY_LIST)
         .asFlow()
-        .flatMapLatest { repository.listOfPagingData(20) }
+        .flatMapLatest { repository.listOfPagingData(10) }
         .cachedIn(viewModelScope)
 
 }
