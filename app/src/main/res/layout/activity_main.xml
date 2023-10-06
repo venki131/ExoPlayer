@@ -5,13 +5,13 @@
     android:id="@+id/parent"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#FFFFFF"
+    android:background="?attr/colorOnBackground"
     android:layerType="hardware">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#FFFFFF"
+        android:background="?attr/colorOnBackground"
         tools:context=".MainActivity">
 
         <TextView
@@ -121,7 +121,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="16dp"
-            android:visibility="gone"
+            android:visibility="visible"
             tools:visibility="visible"
             android:layout_marginTop="20dp"
             android:layout_gravity="center_horizontal"
@@ -170,14 +170,30 @@
             app:layout_constraintTop_toBottomOf="@id/show_scroll_widget_recent_btn"
             />
 
+        <androidx.constraintlayout.widget.Group
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:constraint_referenced_ids="show_scroll_widget_btn, show_scroll_widget_recent_btn, show_scroll_widget_snapper_btn, show_scroll_widget_stop_online_btn"
+            android:visibility="gone"/>
+
         <TextView
             android:id="@+id/scroll_text"
             android:layout_width="match_parent"
             android:layout_height="800dp"
             android:layout_marginTop="30dp"
             android:gravity="center"
-            android:visibility="gone"
+            android:visibility="visible"
             android:text="scroll"
-            app:layout_constraintTop_toBottomOf="@id/scrollable_ruler" />
+            app:layout_constraintTop_toBottomOf="@id/custom_switch" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/custom_switch"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Switch Theme"
+            android:layout_marginTop="50dp"
+            app:layout_constraintTop_toBottomOf="@id/scrollable_ruler_stop_online_scroller"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.core.widget.NestedScrollView>

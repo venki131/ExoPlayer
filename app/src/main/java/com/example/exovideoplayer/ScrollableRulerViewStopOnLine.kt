@@ -420,12 +420,14 @@ class ScrollableRulerViewStopOnLine(context: Context, attrs: AttributeSet?) : Vi
             }
             path.reset()
 
-            drawText(
-                "₹ ${scrollableRulerFormatter?.getMarkerValue(rulerValue) ?: rulerValue.toString()}",
-                textPosition.x,
-                textPosition.y,
-                paintText
-            )
+            if (isContentVisible) {
+                drawText(
+                    "₹ ${scrollableRulerFormatter?.getMarkerValue(rulerValue) ?: rulerValue.toString()}",
+                    textPosition.x,
+                    textPosition.y,
+                    paintText
+                )
+            }
 
             val distance = rulerEndValue - rulerStartValue
             val xAxisValueMarkerModulo = distance / 6
