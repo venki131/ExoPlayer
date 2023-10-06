@@ -13,4 +13,32 @@
     <color name="purple_text">#FF6200EE</color>
     <color name="player_control_background">#000000</color>
     <color name="green">#298b28</color>
+
+
+    <!--Custom theme colors-->
+    <color name="md_theme_light_primary">#6750A4</color>
+    <color name="md_theme_light_onPrimary">#FFFFFF</color>
+    <color name="md_theme_light_primaryContainer">#EADDFF</color>
+    <color name="md_theme_light_onPrimaryContainer">#21005D</color>
+    <color name="md_theme_light_error">#B3261E</color>
+    <color name="md_theme_light_onError">#FFFFFF</color>
+    <color name="md_theme_light_errorContainer">#F9DEDC</color>
+    <color name="md_theme_light_onErrorContainer">#410E0B</color>
+    <color name="md_theme_light_surface">#FFFBFE</color>
+    <color name="md_theme_light_onSurface">#1C1B1F</color>
+    <color name="md_theme_light_surfaceVariant">#E7E0EC</color>
+    <color name="md_theme_dark_primary">#D0BCFF</color>
+    <color name="md_theme_dark_onPrimary">#381E72</color>
+    <color name="md_theme_dark_primaryContainer">#4F378B</color>
+    <color name="md_theme_dark_onPrimaryContainer">#EADDFF</color>
+    <color name="md_theme_dark_secondary">#CCC2DC</color>
+    <color name="md_theme_dark_onSecondary">#332D41</color>
+    <color name="md_theme_dark_secondaryContainer">#4A4458</color>
+    <color name="md_theme_dark_onSurface">#E6E1E5</color>
+    <color name="md_theme_dark_surfaceVariant">#49454F</color>
+
+    <color name="darkBackground">#333333</color>
+    <color name="lightBackground">#FFFFFF</color>
+
+
 </resources>

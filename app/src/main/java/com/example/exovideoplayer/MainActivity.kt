@@ -1,5 +1,6 @@
 package com.example.exovideoplayer
 
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
@@ -7,7 +8,6 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import androidx.core.view.marginTop
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -47,13 +47,45 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Apply the initial theme
+        if (isDarkModeEnabled()) {
+            ThemeManager.applyDarkTheme(this)
+            viewBinding.customSwitch.isChecked = true
+        } else {
+            ThemeManager.applyLightTheme(this)
+            viewBinding.customSwitch.isChecked = false
+        }
+
         setContentView(viewBinding.root)
+        viewBinding.customSwitch.setOnCheckedChangeListener { _, isChecked ->
+            saveThemePreference(isChecked)
+
+            // Recreate the activity to apply the new theme
+            recreate()
+
+        }
         addItems()
         showScrollWidget()
         output = computeBreakEvenChartOutputData(inputData)
         drawLineChart()
-        //resetChart()
     }
+
+    private fun isDarkModeEnabled(): Boolean {
+        // Retrieve the user's dark mode preference from your settings or preferences
+        // Return true if dark mode is enabled, false otherwise
+        return getSharedPreferences("prefs", MODE_PRIVATE).getBoolean(
+            "dark_mode",
+            false
+        )
+    }
+
+    private fun saveThemePreference(isDarkMode: Boolean) {
+        val sharedPreferences = getSharedPreferences("prefs", Context.MODE_PRIVATE)
+        val editor = sharedPreferences.edit()
+        editor.putBoolean("dark_mode", isDarkMode)
+        editor.apply()
+    }
+
 
     private fun showScrollWidget() {
         viewBinding.showScrollWidgetBtn.setOnClickListener {
@@ -141,25 +173,29 @@ class MainActivity : AppCompatActivity() {
                 parentStockPrice = 990.5
             )
         )
-        list.add(BreakEvenChartInputData(
-            isSell = false,
-            premium = 94.0,
-            breakEven = 20094.0,
-            lotSize = 50,
-            optionType = OptionType.CALL,
-            optionName = "Nifty 50",
-            parentStockPrice = 20070.0
-        ))
+        list.add(
+            BreakEvenChartInputData(
+                isSell = false,
+                premium = 94.0,
+                breakEven = 20094.0,
+                lotSize = 50,
+                optionType = OptionType.CALL,
+                optionName = "Nifty 50",
+                parentStockPrice = 20070.0
+            )
+        )
 
-        list.add(BreakEvenChartInputData(
-            isSell = false,
-            premium = 2.95,
-            breakEven = 1603.0,
-            lotSize = 400,
-            optionType = OptionType.CALL,
-            optionName = "Infosys",
-            parentStockPrice = 1498.35
-        ))
+        list.add(
+            BreakEvenChartInputData(
+                isSell = false,
+                premium = 2.95,
+                breakEven = 1603.0,
+                lotSize = 400,
+                optionType = OptionType.CALL,
+                optionName = "Infosys",
+                parentStockPrice = 1498.35
+            )
+        )
     }
 
     private fun scrollView() {
@@ -219,7 +255,8 @@ class MainActivity : AppCompatActivity() {
         )
         customMarkerView.chartView = viewBinding.historyChart
         val breakEvenChartOutputData = computeBreakEvenChartOutputData(listData)//output!!
-        val lineChartData = convertBreakEvenDataToLineChartData(breakEvenChartOutputData = breakEvenChartOutputData)
+        val lineChartData =
+            convertBreakEvenDataToLineChartData(breakEvenChartOutputData = breakEvenChartOutputData)
         viewBinding.historyChart.apply {
             visibility = View.VISIBLE
             setTouchEnabled(true)
