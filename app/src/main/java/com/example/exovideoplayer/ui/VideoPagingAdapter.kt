@@ -1,12 +1,13 @@
 package com.example.exovideoplayer.ui
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.paging.PagingDataAdapter
 import androidx.recyclerview.widget.DiffUtil
 import com.example.exovideoplayer.R
 
-class VideoPagingAdapter :
+class VideoPagingAdapter(private val videoPlayer: VideoPlayer) :
     PagingDataAdapter<String, VideoViewHolder>(StringDiffCallback()) {
 
     private var currentPlaybackPos: Long = 0L
@@ -20,9 +21,9 @@ class VideoPagingAdapter :
         if (position == 3) {
             holder.showImage()
         }
-        holder.bind(getItem(position), currentPlaybackPos)
+        holder.bind(getItem(position), currentPlaybackPos, videoPlayer = videoPlayer)
         holder.bookmark.setOnClickListener {
-            currentPlaybackPos = holder.getPlaybackPos()
+            currentPlaybackPos = holder.getPlaybackPos(videoPlayer)
             notifyItemChanged(position)
         }
     }
@@ -36,5 +37,10 @@ class VideoPagingAdapter :
         override fun areContentsTheSame(oldItem: String, newItem: String): Boolean {
             return oldItem == newItem
         }
+    }
+
+    override fun onViewRecycled(holder: VideoViewHolder) {
+        holder.releasePlayer()
+        Log.d("VideoPlayerAdapter", "player released for ${holder.adapterPosition}")
     }
 }

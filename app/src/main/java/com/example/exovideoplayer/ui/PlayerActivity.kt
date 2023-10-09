@@ -23,11 +23,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
-import androidx.lifecycle.AbstractSavedStateViewModelFactory
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.media3.common.AudioAttributes
@@ -36,12 +33,11 @@ import androidx.media3.common.MimeTypes
 import androidx.media3.common.PlaybackParameters
 import androidx.media3.common.Player
 import androidx.media3.exoplayer.ExoPlayer
-import androidx.paging.PagingData
 import androidx.recyclerview.widget.RecyclerView
 import com.example.exovideoplayer.CustomSelectionAdapter
+import com.example.exovideoplayer.HandleException
 import com.example.exovideoplayer.R
 import com.example.exovideoplayer.databinding.ActivityPlayerBinding
-import com.example.exovideoplayer.domain.repository.SamplePagingRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -105,6 +101,7 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
         playPauseAnimation = AnimationUtils.loadAnimation(this, R.anim.play_pause_animation)
         customSeekBar?.setOnSeekBarChangeListener(this)
         initRvAdapter()
+        HandleException(this,this).dummyApiCall()
     }
 
     public override fun onStart() {
@@ -133,9 +130,11 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
             getString(R.string.media_url_mp4),
             getString(R.string.media_url_mp3),
         )
+        val videoPlayer = VideoPlayer(this)
+        //videoPlayer.setupPlayer()
 
         //val adapter = VideoRvAdapter(videoList)
-        val adapter = VideoPagingAdapter()
+        val adapter = VideoPagingAdapter(videoPlayer)
         /*lifecycleScope.launch {
             adapter.submitData(
                 PagingData.from(
@@ -159,7 +158,7 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
         }
 
         recyclerView?.adapter = adapter
-        val videoPlayScrollListener = VideoPlayScrollListener(lifecycleOwner)
+        val videoPlayScrollListener = VideoPlayScrollListener(lifecycleOwner, videoPlayer)
         recyclerView?.addOnScrollListener(videoPlayScrollListener)
         viewBinding.addToFavourites.setOnClickListener {
             adapter.notifyDataSetChanged()

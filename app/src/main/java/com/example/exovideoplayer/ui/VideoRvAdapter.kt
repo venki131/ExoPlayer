@@ -23,11 +23,11 @@ class VideoRvAdapter(
         if (position == 3) {
             holder.showImage()
         }
-        holder.bind(list[position], currentPlaybackPos)
+        /*holder.bind(list[position], currentPlaybackPos)
         holder.bookmark.setOnClickListener {
-            currentPlaybackPos = holder.getPlaybackPos()
+            currentPlaybackPos = holder.getPlaybackPos(videoPlayer)
             notifyItemChanged(position)
-        }
+        }*/
     }
 }
 
