@@ -3,6 +3,7 @@ package com.example.exovideoplayer.ui
 //import com.assetgro.stockgro.databinding.LayoutVideoPlayerBinding
 import android.content.Context
 import android.util.AttributeSet
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -36,6 +37,7 @@ class VideoPlayer @JvmOverloads constructor(
 ) : FrameLayout(context, attrs, defStyleAttr), SeekBar.OnSeekBarChangeListener, LifecycleObserver {
 
     private var _context: Context? = null
+    private val TAG = VideoPlayer::class.java.simpleName
 
     private lateinit var binding: LayoutVideoPlayerBinding
 
@@ -65,16 +67,24 @@ class VideoPlayer @JvmOverloads constructor(
 
     private val coroutineScope = CoroutineScope(Dispatchers.Main)
     fun attachLifecycle(lifecycle: Lifecycle) {
-        lifecycle.addObserver(this)
+        try {
+            lifecycle.addObserver(this)
+        } catch (e: Exception) {
+            Log.d(TAG, "${e.message}")
+        }
     }
 
     fun detachLifecycle(lifecycle: Lifecycle) {
-        pausePlayback()
-        player?.let {
-            playbackPosition = it.currentPosition
-            updatePlayPauseButtonState(it)
+        try {
+            pausePlayback()
+            player?.let {
+                playbackPosition = it.currentPosition
+                updatePlayPauseButtonState(it)
+            }
+            lifecycle.removeObserver(this)
+        } catch (e: Exception) {
+            Log.d(TAG, "${e.message}")
         }
-        lifecycle.removeObserver(this)
     }
 
     init {
@@ -117,6 +127,12 @@ class VideoPlayer @JvmOverloads constructor(
     // Call this function to stop the periodic progress updates when necessary
     private fun stopProgressUpdates() {
         coroutineScope.coroutineContext.cancelChildren()
+    }
+
+    fun setupPlayer() {
+        player = ExoPlayer.Builder(context)
+            .setAudioAttributes(AudioAttributes.DEFAULT, true)
+            .build()
     }
 
     fun initializePlayer(videoUrl: String, isFullScreen: Boolean = false) {
@@ -226,18 +242,30 @@ class VideoPlayer @JvmOverloads constructor(
 
     @OnLifecycleEvent(Lifecycle.Event.ON_PAUSE)
     private fun onPause() {
-        pausePlayback()
+        try {
+            pausePlayback()
+        } catch (e: Exception) {
+            Log.d(TAG, "${e.message}")
+        }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)
     private fun onDestroy() {
-        releasePlayer()
-        player?.playWhenReady = false
+        try {
+            releasePlayer()
+            player?.playWhenReady = false
+        } catch (e: Exception) {
+            Log.d(TAG, "${e.message}")
+        }
     }
 
     @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
     private fun onResume() {
-        startPlayback()
+        try {
+            startPlayback()
+        } catch (e: Exception) {
+            Log.d(TAG, "${e.message}")
+        }
     }
 
     fun startPlayback(playbackPos: Long = 0L) {
@@ -247,7 +275,9 @@ class VideoPlayer @JvmOverloads constructor(
             exoPlayer.play()
             if (playbackPos != 0L)
                 exoPlayer.seekTo(playbackPos)
-            if (exoPlayer.playbackState == ExoPlayer.STATE_READY) updatePlayPauseButtonState(exoPlayer = exoPlayer)
+            if (exoPlayer.playbackState == ExoPlayer.STATE_READY) updatePlayPauseButtonState(
+                exoPlayer = exoPlayer
+            )
         }
     }
 
@@ -255,7 +285,7 @@ class VideoPlayer @JvmOverloads constructor(
         player?.pause()
     }
 
-   private fun updateVolumeButtonState(isMuted: Boolean) {
+    private fun updateVolumeButtonState(isMuted: Boolean) {
         val muteIcon = if (isMuted) {
             R.drawable.ic_volume_off
         } else {

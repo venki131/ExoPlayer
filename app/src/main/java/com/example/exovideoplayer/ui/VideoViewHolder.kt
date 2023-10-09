@@ -16,8 +16,8 @@ class VideoViewHolder(
     val bookmark: ImageButton = itemView.findViewById(R.id.img1)
     val gImg: ImageView = itemView.findViewById(R.id.sample_image)
     private var isPlayerInitialized = false
-    fun bind(videoUrl: String? = null, playbackPos: Long = 0L) {
-        if (videoUrl != null && isPlayerInitialized.not()) {
+    fun bind(videoUrl: String? = null, playbackPos: Long = 0L, videoPlayer: VideoPlayer) {
+        if (videoUrl != null) {
             player.initializePlayer(videoUrl)
             isPlayerInitialized = true
             Log.d(TAG, "Player initialized for URL: $videoUrl")
@@ -29,17 +29,21 @@ class VideoViewHolder(
         }
     }
 
-    fun onViewAttachedToWindow(lifecycleOwner: LifecycleOwner) {
+    fun onViewAttachedToWindow(lifecycleOwner: LifecycleOwner, videoPlayer: VideoPlayer) {
         Log.d(TAG, "attached to window")
         player.attachLifecycle(lifecycleOwner.lifecycle)
     }
 
-    fun onViewDetachedFromWindow(lifecycleOwner: LifecycleOwner) {
+    fun onViewDetachedFromWindow(lifecycleOwner: LifecycleOwner, videoPlayer: VideoPlayer) {
         Log.d(TAG, "detached from window")
         player.detachLifecycle(lifecycleOwner.lifecycle)
     }
 
-    fun getPlaybackPos() = player.getPlaybackPosition()
+    fun releasePlayer() {
+        player.releasePlayer()
+    }
+
+    fun getPlaybackPos(videoPlayer: VideoPlayer) = player.getPlaybackPosition()
 
     fun showImage() {
         gImg.visibility = View.VISIBLE
