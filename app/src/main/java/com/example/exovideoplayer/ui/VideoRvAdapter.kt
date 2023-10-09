@@ -29,11 +29,11 @@ class VideoRvAdapter(
         } else {
             holder.hideImage()
         }
-        holder.bind(list[position], currentPlaybackPos)
+        /*holder.bind(list[position], currentPlaybackPos)
         holder.bookmark.setOnClickListener {
-            currentPlaybackPos = holder.getPlaybackPos()
+            currentPlaybackPos = holder.getPlaybackPos(videoPlayer)
             notifyItemChanged(position)
-        }
+        }*/
     }
 
     override fun onViewRecycled(holder: VideoViewHolder) {

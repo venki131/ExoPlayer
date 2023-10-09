@@ -26,11 +26,11 @@ class VideoPlayScrollListener(
         // Check if the first visible ViewHolder has changed
         if (firstVisibleViewHolder != lastVisibleViewHolder) {
             // Detach the player from the last visible ViewHolder
-            lastVisibleViewHolder?.onViewDetachedFromWindow(lifecycleOwner)
+            lastVisibleViewHolder?.onViewDetachedFromWindow(lifecycleOwner, videoPlayer)
 
             // Attach the player to the new visible ViewHolder if its VideoPlayer is completely visible
             if (isVideoPlayerVisible(firstVisibleViewHolder?.player)) {
-                firstVisibleViewHolder?.onViewAttachedToWindow(lifecycleOwner)
+                firstVisibleViewHolder?.onViewAttachedToWindow(lifecycleOwner, videoPlayer)
             }
 
             // Update the last visible ViewHolder
