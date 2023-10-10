@@ -11,6 +11,8 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.example.exovideoplayer.ThemeManager.isDarkModeEnabled
+import com.example.exovideoplayer.ThemeManager.saveThemePreference
 import com.example.exovideoplayer.databinding.ActivityMainBinding
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.charts.LineChart
@@ -48,7 +50,7 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // Apply the initial theme
-        if (isDarkModeEnabled()) {
+        if (isDarkModeEnabled(this)) {
             ThemeManager.applyDarkTheme(this)
             viewBinding.customSwitch.isChecked = true
         } else {
@@ -58,7 +60,7 @@ class MainActivity : AppCompatActivity() {
 
         setContentView(viewBinding.root)
         viewBinding.customSwitch.setOnCheckedChangeListener { _, isChecked ->
-            saveThemePreference(isChecked)
+            saveThemePreference(this, isChecked)
 
             // Recreate the activity to apply the new theme
             recreate()
@@ -70,21 +72,21 @@ class MainActivity : AppCompatActivity() {
         drawLineChart()
     }
 
-    private fun isDarkModeEnabled(): Boolean {
+    /*private fun isDarkModeEnabled(): Boolean {
         // Retrieve the user's dark mode preference from your settings or preferences
         // Return true if dark mode is enabled, false otherwise
         return getSharedPreferences("prefs", MODE_PRIVATE).getBoolean(
             "dark_mode",
             false
         )
-    }
+    }*/
 
-    private fun saveThemePreference(isDarkMode: Boolean) {
+    /*private fun saveThemePreference(isDarkMode: Boolean) {
         val sharedPreferences = getSharedPreferences("prefs", Context.MODE_PRIVATE)
         val editor = sharedPreferences.edit()
         editor.putBoolean("dark_mode", isDarkMode)
         editor.apply()
-    }
+    }*/
 
 
     private fun showScrollWidget() {
@@ -717,7 +719,8 @@ class MainActivity : AppCompatActivity() {
             setDrawCircleHole(false)
             circleRadius = 4f //change radius as needed
             lineWidth = 2f
-            setCircleColor(Color.BLACK)
+            val dotColor = if (isDarkModeEnabled(baseContext)) Color.WHITE else Color.BLACK
+            setCircleColor(dotColor)
             highlightLineWidth = 2f
             highLightColor = Color.rgb(235, 59, 59)
             setDrawHorizontalHighlightIndicator(false)
@@ -762,7 +765,7 @@ class MainActivity : AppCompatActivity() {
             axisMinimum = -maxY.toFloat()
             axisMaximum = ceil(maxY.toFloat())
 
-            zeroLineColor = Color.BLACK
+            zeroLineColor = if (isDarkModeEnabled(baseContext)) Color.WHITE else Color.BLACK
             zeroLineWidth = 1.5f
             setDrawZeroLine(true)
             setDrawMarkers(true)
@@ -775,7 +778,8 @@ class MainActivity : AppCompatActivity() {
 
             addLimitLine(LimitLine(maxY.toFloat()).apply {
                 lineWidth = 1.5f
-                lineColor = Color.argb(40, 26, 26, 26)
+                //val lineCol = if (isDarkModeEnabled(baseContext)) Color.argb(40,255,255,255,255) else Color.argb(40, 26, 26, 26)
+                lineColor = if (isDarkModeEnabled(baseContext)) Color.argb(40,255,255,255) else Color.argb(40, 26, 26, 26)
                 enableDashedLine(20.0f, 25.0f, 0.0f)
                 labelPosition = LimitLine.LimitLabelPosition.LEFT_TOP
             }).also {
@@ -783,7 +787,7 @@ class MainActivity : AppCompatActivity() {
             }
             addLimitLine(LimitLine(-maxY.toFloat()).apply {
                 lineWidth = 1.5f
-                lineColor = Color.argb(40, 26, 26, 26)
+                lineColor = if (isDarkModeEnabled(baseContext)) Color.argb(40,255,255,255) else Color.argb(40, 26, 26, 26)
                 enableDashedLine(20.0f, 25.0f, 0.0f)
             })
 
@@ -800,6 +804,8 @@ class MainActivity : AppCompatActivity() {
                         else -> "0"
                     }
                 }
+            }.apply {
+                textColor = if (isDarkModeEnabled(baseContext)) Color.WHITE else Color.BLACK
             }
         }
 

@@ -45,7 +45,7 @@ class CustomMarkerView(
         dotPaint.isAntiAlias = true
         dotPaint.style = Paint.Style.FILL
 
-        textPaint.color = Color.BLACK
+        textPaint.color = if (ThemeManager.isDarkModeEnabled(context)) Color.WHITE else Color.BLACK
         textPaint.style = Paint.Style.FILL_AND_STROKE
         textPaint.isAntiAlias = true
         textPaint.textSize = 25f
@@ -128,7 +128,8 @@ class CustomMarkerView(
                 }
 
                 text = formattedText
-                setTextColor(Color.BLACK)
+                val textColor = if (ThemeManager.isDarkModeEnabled(context)) Color.BLACK else Color.WHITE
+                setTextColor(textColor)
                 setPadding(0,0,0,10)
                 visibility = VISIBLE
             }
@@ -166,12 +167,15 @@ class CustomMarkerView(
         val isPositive = posY.toBigDecimal().setScale(2, RoundingMode.HALF_UP).toFloat() < centerY
         val isNegative = posY.toBigDecimal().setScale(2, RoundingMode.HALF_UP).toFloat() > centerY
 
-        // Set the dot color based on the direction
-        dotPaint.color = when {
-            isPositive -> ContextCompat.getColor(context, R.color.green)
-            isNegative -> Color.RED
-            else -> Color.BLACK // Use black for the center position
+        // Determine the color based on the theme
+        val colorResId = when {
+            isPositive -> if (ThemeManager.isDarkModeEnabled(context)) R.color.green else R.color.green
+            isNegative -> if (ThemeManager.isDarkModeEnabled(context)) R.color.red_light else R.color.red_dark
+            else -> if (ThemeManager.isDarkModeEnabled(context)) android.R.color.white else android.R.color.black
         }
+
+        // Set the dot color based on the theme
+        dotPaint.color = ContextCompat.getColor(context, colorResId)
 
         // Draw the circular dot at the touch position
         canvas?.drawCircle(posX, posY, dotRadius, dotPaint)
