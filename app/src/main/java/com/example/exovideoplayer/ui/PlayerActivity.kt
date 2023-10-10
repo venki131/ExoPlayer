@@ -101,7 +101,7 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
         playPauseAnimation = AnimationUtils.loadAnimation(this, R.anim.play_pause_animation)
         customSeekBar?.setOnSeekBarChangeListener(this)
         initRvAdapter()
-        HandleException(this,this).dummyApiCall()
+        //HandleException(this,this).dummyApiCall()
     }
 
     public override fun onStart() {
@@ -131,24 +131,7 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
             getString(R.string.media_url_mp3),
         )
         val videoPlayer = VideoPlayer(this)
-        //videoPlayer.setupPlayer()
-
-        //val adapter = VideoRvAdapter(videoList)
         val adapter = VideoPagingAdapter(videoPlayer)
-        /*lifecycleScope.launch {
-            adapter.submitData(
-                PagingData.from(
-                    listOf(
-                        getString(R.string.media_url_mp4),
-                        "",
-                        getString(R.string.media_url_mp3),
-                        getString(R.string.media_url_mp4),
-                        getString(R.string.media_url_mp3)
-                    )
-                )
-            )
-        }*/
-
         lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 model.pageList.collectLatest {
