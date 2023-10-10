@@ -13,6 +13,10 @@
     <color name="purple_text">#FF6200EE</color>
     <color name="player_control_background">#000000</color>
     <color name="green">#298b28</color>
+    <color name="green_light">#00FF00</color>
+    <color name="green_dark">#008000</color>
+    <color name="red_light">#FF0000</color>
+    <color name="red_dark">#FF0000</color>
 
 
     <!--Custom theme colors-->
@@ -37,7 +41,7 @@
     <color name="md_theme_dark_onSurface">#E6E1E5</color>
     <color name="md_theme_dark_surfaceVariant">#49454F</color>
 
-    <color name="darkBackground">#333333</color>
+    <color name="darkBackground">#000000</color>
     <color name="lightBackground">#FFFFFF</color>
 
 

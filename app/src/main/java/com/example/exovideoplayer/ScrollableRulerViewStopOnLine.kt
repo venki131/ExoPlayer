@@ -15,17 +15,12 @@ import android.graphics.Path
 import android.graphics.PointF
 import android.graphics.PorterDuff
 import android.graphics.RectF
-import android.graphics.Typeface
 import android.util.AttributeSet
 import android.util.Log
 import android.util.TypedValue
 import android.view.MotionEvent
 import android.view.View
-import android.view.animation.AccelerateDecelerateInterpolator
-import android.view.animation.AccelerateInterpolator
-import android.view.animation.DecelerateInterpolator
 import android.view.animation.LinearInterpolator
-import android.widget.OverScroller
 import android.widget.Scroller
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
@@ -111,31 +106,6 @@ class ScrollableRulerViewStopOnLine(context: Context, attrs: AttributeSet?) : Vi
 
     var initialXValue = 0F
     private var lastTouchX = 0f
-
-    /*fun moveToIndex(index: Int) {
-        val rulerIndexForComputing =
-            if (index > rulerEndValue) rulerEndValue else if (index < rulerStartValue) rulerStartValue else index
-        val computedRulerValue = rulerIndexForComputing * rulerIncrementValue
-        val offsetX = middleOfScreen - (computedRulerValue * gapBetweenLines)
-
-        initialXValue = offsetX
-        lastTouchX = offsetX
-
-        rulerValue = computedRulerValue
-
-
-        listener?.let { callback ->
-            searchJob?.cancel()
-            searchJob = coroutineScope.launch {
-                rulerValue.let {
-                    delay(debouncePeriod)
-                    callback.onRulerValueChanged(rulerValue)
-                }
-            }
-        }
-        isContentVisible = true
-        invalidateCache()
-    }*/
 
     fun moveToIndex(index: Int, dx:Int = 0) {
         val rulerIndexForComputing =
@@ -308,7 +278,7 @@ class ScrollableRulerViewStopOnLine(context: Context, attrs: AttributeSet?) : Vi
         }
 
         paintLegend.apply {
-            color = Color.GRAY
+            color = if (ThemeManager.isDarkModeEnabled(context)) Color.WHITE else Color.GRAY
             textAlign = Paint.Align.CENTER
             textSize = legendTextSize
             typeface = fontTypeFace
@@ -480,10 +450,6 @@ class ScrollableRulerViewStopOnLine(context: Context, attrs: AttributeSet?) : Vi
                 lastTouchX = event.x
                 rulerViewPressed = false
                 invalidateCache()
-                val snapPosition = calculateSnappedPosition()
-                // Animate to the snapped position
-                //smoothScrollToPosition(rulerValue)
-                //moveToIndex(rulerValue)
                 parent?.requestDisallowInterceptTouchEvent(false)
             }
 
@@ -524,13 +490,6 @@ class ScrollableRulerViewStopOnLine(context: Context, attrs: AttributeSet?) : Vi
         return true
     }
 
-    private fun smoothScrollToPosition(targetX: Int) {
-        val startX = scrollX
-        val distance = targetX - startX
-        scroller.startScroll(startX, 0, distance, 0, snapDuration)
-        postInvalidate()
-    }
-
     override fun computeScroll() {
         if (scroller.computeScrollOffset()) {
             scrollTo(scroller.currX, 0)
@@ -555,75 +514,12 @@ class ScrollableRulerViewStopOnLine(context: Context, attrs: AttributeSet?) : Vi
         }
     }
 
-    // Smooth scroll to the snapped position using Scroller
-    private fun scrollToSnappedPosition() {
-        val snappedInitialXValue = calculateInitialXValue(rulerValue)
-        val dx = snappedInitialXValue - initialXValue
-        if (initialXValue <= snappedInitialXValue) {
-            // Start a smooth scroll animation
-            scroller.startScroll(
-                initialXValue.toInt(),
-                0,
-                dx.toInt(),
-                0,
-                (snappedInitialXValue - initialXValue).toInt(),
-            )
-            postInvalidateOnAnimation()
-        }
-    }
-
-    // Smooth scroll to the snapped position using Scroller
-    /*private fun scrollToSnappedPosition() {
-        val snappedInitialXValue = calculateInitialXValue(rulerValue)
-        val dx = (snappedInitialXValue - initialXValue).toInt()
-        val snapDuration = 200 // Adjust this value for the snap animation duration (milliseconds)
-        val snapThreshold = gapBetweenLines / 2 // 50% threshold for snapping
-
-        // Determine whether to snap to the next line or the previous line
-        val snapToNextLine = if (dx > 0) {
-            dx > snapThreshold
-        } else {
-            dx < -snapThreshold
-        }
-
-        // Check if the distance between lines is more than 50% of a line's gap
-        val isMoreThanHalfWay = abs(dx % gapBetweenLines) > snapThreshold
-
-        // Adjust the finalDx based on snap direction
-        val finalDx = if (snapToNextLine) {
-            if (dx > 0) gapBetweenLines else -gapBetweenLines
-        } else {
-            if (dx > 0) -gapBetweenLines else 0
-        }
-
-        Log.d(TAG, "snap next line = $snapToNextLine dx = $dx morethan50 = $isMoreThanHalfWay")
-
-        // Start a smooth scroll animation
-        scroller.startScroll(
-            initialXValue.toInt(),
-            0,
-            finalDx.toInt(),
-            0,
-            snapDuration
-        )
-        postInvalidateOnAnimation()
-    }*/
-
 
     private fun calculateInitialXValue(rulerValue: Int): Float {
         return (middleOfScreen - (rulerValue - rulerStartValue) * gapBetweenLines).apply {
             "%.1f".format(this).toFloat()
         }
     }
-
-    // Override the computeScroll method to handle scroll updates
-    /*override fun computeScroll() {
-        if (scroller.computeScrollOffset()) {
-            // Update the initialXValue during the scroll animation
-            initialXValue = scroller.currX.toFloat()
-            postInvalidateOnAnimation()
-        }
-    }*/
 
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
