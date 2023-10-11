@@ -10,40 +10,57 @@
         <item name="android:windowBackground">@null</item>
     </style>
 
-    <style
-        name="AppTheme"
-        parent="ThemeOverlay.Material3.DynamicColors.DayNight">
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.Bridge">
+        <item name="colorPrimary">@color/md_theme_primary</item>
+        <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/md_theme_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/md_theme_onPrimaryContainer</item>
+        <item name="colorError">@color/md_theme_error</item>
+        <item name="colorOnError">@color/md_theme_onError</item>
+        <item name="colorErrorContainer">@color/md_theme_errorContainer</item>
+        <item name="colorOnErrorContainer">@color/md_theme_onErrorContainer</item>
+        <item name="colorOnBackground">@color/background</item>
+        <item name="colorSurface">@color/md_theme_surface</item>
+        <item name="colorOnSurface">@color/md_theme_onSurface</item>
+        <item name="android:windowBackground">@color/background</item>
     </style>
 
 
-    <style name="AppThemeLight" parent="Theme.Material3.Light.NoActionBar">
-        <item name="colorPrimary">@color/md_theme_light_primary</item>
-        <item name="colorOnPrimary">@color/md_theme_light_onPrimary</item>
-        <item name="colorPrimaryContainer">@color/md_theme_light_primaryContainer</item>
-        <item name="colorOnPrimaryContainer">@color/md_theme_light_onPrimaryContainer</item>
-        <item name="colorError">@color/md_theme_light_error</item>
-        <item name="colorOnError">@color/md_theme_light_onError</item>
-        <item name="colorErrorContainer">@color/md_theme_light_errorContainer</item>
-        <item name="colorOnErrorContainer">@color/md_theme_light_onErrorContainer</item>
-        <item name="colorOnBackground">@color/lightBackground</item>
-        <item name="colorSurface">@color/md_theme_light_surface</item>
-        <item name="colorOnSurface">@color/md_theme_light_onSurface</item>
+    <style name="AppThemeCustom" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/md_theme_primary</item>
+        <item name="colorOnPrimary">@color/md_theme_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/md_theme_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/md_theme_onPrimaryContainer</item>
+        <item name="colorError">@color/md_theme_error</item>
+        <item name="colorOnError">@color/md_theme_onError</item>
+        <item name="colorErrorContainer">@color/md_theme_errorContainer</item>
+        <item name="colorOnErrorContainer">@color/md_theme_onErrorContainer</item>
+        <item name="colorOnBackground">@color/background</item>
+        <item name="colorSurface">@color/md_theme_surface</item>
+        <item name="colorOnSurface">@color/md_theme_onSurface</item>
+        <item name="android:windowBackground">@color/background</item>
+
+        <item name="shapeAppearanceSmallComponent">@style/ShapeAppearance.MyApp.SmallComponent
+        </item>
+        <item name="shapeAppearanceMediumComponent">@style/ShapeAppearance.MyApp.MediumComponent
+        </item>
+        <item name="shapeAppearanceLargeComponent">@style/ShapeAppearance.MyApp.LargeComponent
+        </item>
         <!--<item name="android:statusBarColor">@android:color/transparent</item>-->
     </style>
 
-    <style name="AppThemeDark" parent="Theme.Material3.Dark.NoActionBar">
-        <item name="colorPrimary">@color/md_theme_dark_primary</item>
-        <item name="colorOnPrimary">@color/md_theme_dark_onPrimary</item>
-        <item name="colorPrimaryContainer">@color/md_theme_dark_primaryContainer</item>
-        <item name="colorOnPrimaryContainer">@color/md_theme_dark_onPrimaryContainer</item>
-        <item name="colorOnBackground">@color/darkBackground</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <!--<item name="colorError">@color/md_theme_dark_error</item>
-        <item name="colorOnError">@color/md_theme_dark_onError</item>
-        <item name="colorErrorContainer">@color/md_theme_dark_errorContainer</item>
-        <item name="colorOnErrorContainer">@color/md_theme_dark_onErrorContainer</item>
-        <item name="colorOnBackground">@color/md_theme_dark_onBackground</item>
-        <item name="colorSurface">@color/md_theme_dark_surface</item>-->
-        <item name="colorOnSurface">@color/md_theme_dark_onSurface</item>
+    <style name="Theme.ExoVideoPlayer.AppWidgetContainerParent" parent="@android:style/Theme.DeviceDefault">
+        <!-- Radius of the outer bound of widgets to make the rounded corners -->
+        <item name="appWidgetRadius">16dp</item>
+        <!--
+        Radius of the inner view's bound of widgets to make the rounded corners.
+        It needs to be 8dp or less than the value of appWidgetRadius
+        -->
+        <item name="appWidgetInnerRadius">8dp</item>
+    </style>
+
+    <style name="Theme.ExoVideoPlayer.AppWidgetContainer" parent="Theme.ExoVideoPlayer.AppWidgetContainerParent">
+        <!-- Apply padding to avoid the content of the widget colliding with the rounded corners -->
+        <item name="appWidgetPadding">16dp</item>
     </style>
 </resources>

@@ -6,11 +6,13 @@ import androidx.appcompat.app.AppCompatActivity
 
 object ThemeManager {
     fun applyLightTheme(activity: Activity) {
-        activity.setTheme(R.style.AppThemeLight)
+        activity.setTheme(R.style.AppThemeCustom)
+        saveThemePreference(activity, true)
     }
 
     fun applyDarkTheme(activity: Activity) {
-        activity.setTheme(R.style.AppThemeDark)
+        activity.setTheme(R.style.AppThemeCustom)
+        saveThemePreference(activity, true)
     }
 
     fun isDarkModeEnabled(context: Context): Boolean {

@@ -1,8 +1,8 @@
 package com.example.exovideoplayer
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Canvas
-import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Typeface
 import android.text.Layout
@@ -22,6 +22,7 @@ import com.github.mikephil.charting.highlight.Highlight
 import com.github.mikephil.charting.utils.MPPointF
 import java.math.RoundingMode
 
+@SuppressLint("NewApi")
 class CustomMarkerView(
     context: Context,
     layoutResource: Int,
@@ -45,7 +46,7 @@ class CustomMarkerView(
         dotPaint.isAntiAlias = true
         dotPaint.style = Paint.Style.FILL
 
-        textPaint.color = if (ThemeManager.isDarkModeEnabled(context)) Color.WHITE else Color.BLACK
+        textPaint.color = context.getColor(R.color.md_theme_onSurface)
         textPaint.style = Paint.Style.FILL_AND_STROKE
         textPaint.isAntiAlias = true
         textPaint.textSize = 25f
@@ -128,7 +129,7 @@ class CustomMarkerView(
                 }
 
                 text = formattedText
-                val textColor = if (ThemeManager.isDarkModeEnabled(context)) Color.BLACK else Color.WHITE
+                val textColor = context.getColor(R.color.md_theme_onSurface)
                 setTextColor(textColor)
                 setPadding(0,0,0,10)
                 visibility = VISIBLE
@@ -169,9 +170,9 @@ class CustomMarkerView(
 
         // Determine the color based on the theme
         val colorResId = when {
-            isPositive -> if (ThemeManager.isDarkModeEnabled(context)) R.color.green else R.color.green
-            isNegative -> if (ThemeManager.isDarkModeEnabled(context)) R.color.red_light else R.color.red_dark
-            else -> if (ThemeManager.isDarkModeEnabled(context)) android.R.color.white else android.R.color.black
+            isPositive -> R.color.green
+            isNegative -> R.color.red
+            else -> R.color.marker_dot_color
         }
 
         // Set the dot color based on the theme

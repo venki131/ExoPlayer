@@ -541,14 +541,3 @@ class ScrollableRulerView(context: Context, attrs: AttributeSet?) : View(context
 
 
 }
-
-interface OnRulerValueChangeListener {
-    fun onRulerValueChanged(rulerValue: Int)
-}
-
-interface ScrollableRulerFormatter {
-
-    fun getRulerValue(index: Int): String
-    fun getMarkerValue(index: Int): String
-
-}

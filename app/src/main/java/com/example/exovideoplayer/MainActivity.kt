@@ -1,6 +1,6 @@
 package com.example.exovideoplayer
 
-import android.content.Context
+import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
@@ -71,22 +71,6 @@ class MainActivity : AppCompatActivity() {
         output = computeBreakEvenChartOutputData(inputData)
         drawLineChart()
     }
-
-    /*private fun isDarkModeEnabled(): Boolean {
-        // Retrieve the user's dark mode preference from your settings or preferences
-        // Return true if dark mode is enabled, false otherwise
-        return getSharedPreferences("prefs", MODE_PRIVATE).getBoolean(
-            "dark_mode",
-            false
-        )
-    }*/
-
-    /*private fun saveThemePreference(isDarkMode: Boolean) {
-        val sharedPreferences = getSharedPreferences("prefs", Context.MODE_PRIVATE)
-        val editor = sharedPreferences.edit()
-        editor.putBoolean("dark_mode", isDarkMode)
-        editor.apply()
-    }*/
 
 
     private fun showScrollWidget() {
@@ -607,6 +591,7 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+    @SuppressLint("NewApi")
     fun convertBreakEvenDataToLineChartData(
         breakEvenChartOutputData: BreakEvenChartOutputData
     ): LineData {
@@ -719,7 +704,7 @@ class MainActivity : AppCompatActivity() {
             setDrawCircleHole(false)
             circleRadius = 4f //change radius as needed
             lineWidth = 2f
-            val dotColor = if (isDarkModeEnabled(baseContext)) Color.WHITE else Color.BLACK
+            val dotColor = baseContext.getColor(R.color.md_theme_onSurface)
             setCircleColor(dotColor)
             highlightLineWidth = 2f
             highLightColor = Color.rgb(235, 59, 59)
@@ -760,12 +745,13 @@ class MainActivity : AppCompatActivity() {
         return LineData(dataSets.toList())
     }
 
+    @SuppressLint("NewApi")
     fun LineChart.configureBreakEvenChart(maxY: Double) {
         axisLeft.apply {
             axisMinimum = -maxY.toFloat()
             axisMaximum = ceil(maxY.toFloat())
 
-            zeroLineColor = if (isDarkModeEnabled(baseContext)) Color.WHITE else Color.BLACK
+            zeroLineColor = baseContext.getColor(R.color.md_theme_onSurface)
             zeroLineWidth = 1.5f
             setDrawZeroLine(true)
             setDrawMarkers(true)
@@ -778,8 +764,7 @@ class MainActivity : AppCompatActivity() {
 
             addLimitLine(LimitLine(maxY.toFloat()).apply {
                 lineWidth = 1.5f
-                //val lineCol = if (isDarkModeEnabled(baseContext)) Color.argb(40,255,255,255,255) else Color.argb(40, 26, 26, 26)
-                lineColor = if (isDarkModeEnabled(baseContext)) Color.argb(40,255,255,255) else Color.argb(40, 26, 26, 26)
+                lineColor = baseContext.getColor(R.color.limit_line_color)
                 enableDashedLine(20.0f, 25.0f, 0.0f)
                 labelPosition = LimitLine.LimitLabelPosition.LEFT_TOP
             }).also {
@@ -787,7 +772,7 @@ class MainActivity : AppCompatActivity() {
             }
             addLimitLine(LimitLine(-maxY.toFloat()).apply {
                 lineWidth = 1.5f
-                lineColor = if (isDarkModeEnabled(baseContext)) Color.argb(40,255,255,255) else Color.argb(40, 26, 26, 26)
+                lineColor = baseContext.getColor(R.color.limit_line_color)
                 enableDashedLine(20.0f, 25.0f, 0.0f)
             })
 
@@ -805,7 +790,7 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }.apply {
-                textColor = if (isDarkModeEnabled(baseContext)) Color.WHITE else Color.BLACK
+                textColor = baseContext.getColor(R.color.md_theme_onSurface)
             }
         }
 

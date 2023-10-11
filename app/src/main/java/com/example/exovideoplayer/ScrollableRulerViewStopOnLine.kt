@@ -6,6 +6,7 @@ import com.assetgro.stockgro.utils.log.Logger*/
 import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.ObjectAnimator
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -32,6 +33,7 @@ import kotlin.math.abs
 import kotlin.math.absoluteValue
 import kotlin.math.roundToInt
 
+@SuppressLint("NewApi")
 class ScrollableRulerViewStopOnLine(context: Context, attrs: AttributeSet?) : View(context, attrs) {
 
     private var cachedBitmap: Bitmap? = null
@@ -75,7 +77,7 @@ class ScrollableRulerViewStopOnLine(context: Context, attrs: AttributeSet?) : Vi
 
     private var lastScrollX: Float = 0f
     private var snappedPosition: Float = 0f
-    private val snapDuration: Int = 300 // Adjust the snap duration as needed
+    private val snapDuration: Long = 300 // Adjust the snap duration as needed
 
     // Load the custom font from the assets folder
     val fontTypeFace = ResourcesCompat.getFont(context, R.font.aladin)
@@ -113,7 +115,7 @@ class ScrollableRulerViewStopOnLine(context: Context, attrs: AttributeSet?) : Vi
         val computedRulerValue = rulerIndexForComputing * rulerIncrementValue
         val offsetX = middleOfScreen - (computedRulerValue * gapBetweenLines)
         val animator = ObjectAnimator.ofFloat(this, "initialXValue", initialXValue, offsetX)
-        animator.duration = 300
+        animator.duration = snapDuration
         Log.d(TAG, "dx value = $dx")
         animator.interpolator = if (dx < 0) LinearInterpolator() else null
         animator.start()
@@ -152,56 +154,6 @@ class ScrollableRulerViewStopOnLine(context: Context, attrs: AttributeSet?) : Vi
 
         animator.start()
     }
-
-    /*fun moveToIndex(index: Int, direction: ScrollDirection? = null) {
-        val rulerIndexForComputing =
-            if (index > rulerEndValue) rulerEndValue else if (index < rulerStartValue) rulerStartValue else index
-        val computedRulerValue = rulerIndexForComputing * rulerIncrementValue
-
-        // Calculate offsetX based on the scrolling direction
-        val offsetX = when (direction) {
-            ScrollDirection.LEFT -> middleOfScreen - (computedRulerValue * gapBetweenLines)
-            ScrollDirection.RIGHT -> middleOfScreen + (computedRulerValue * gapBetweenLines)
-            else -> middleOfScreen - (computedRulerValue * gapBetweenLines)
-        }
-
-        // Adjust the duration based on the absolute value of dx to make it smooth
-        //val duration = Math.abs(dx) * 2 // You can experiment with different values
-
-        val animator = ObjectAnimator.ofFloat(this, "initialXValue", initialXValue, offsetX)
-        animator.duration = 300//duration.toLong()
-        animator.interpolator = LinearInterpolator()
-
-        animator.addUpdateListener { animation ->
-            val currentValue = animation.animatedValue as Float
-            initialXValue = currentValue
-            lastTouchX = currentValue
-            rulerValue = computedRulerValue
-
-            listener?.let { callback ->
-                searchJob?.cancel()
-                searchJob = coroutineScope.launch {
-                    rulerValue.let {
-                        delay(debouncePeriod)
-                        callback.onRulerValueChanged(rulerValue)
-                    }
-                }
-            }
-            isContentVisible = true
-            invalidateCache()
-        }
-
-        animator.addListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator) {
-                super.onAnimationEnd(animation)
-                // Ensure that the final position is set
-                initialXValue = offsetX
-                lastTouchX = offsetX
-            }
-        })
-
-        animator.start()
-    }*/
 
 
     fun enableShadow(enable: Boolean = false) {
@@ -278,7 +230,7 @@ class ScrollableRulerViewStopOnLine(context: Context, attrs: AttributeSet?) : Vi
         }
 
         paintLegend.apply {
-            color = if (ThemeManager.isDarkModeEnabled(context)) Color.WHITE else Color.GRAY
+            color = context.getColor(R.color.md_theme_onSurface)
             textAlign = Paint.Align.CENTER
             textSize = legendTextSize
             typeface = fontTypeFace
@@ -497,13 +449,6 @@ class ScrollableRulerViewStopOnLine(context: Context, attrs: AttributeSet?) : Vi
         }
     }
 
-    private fun calculateSnappedPosition(): Float {
-        val lineSpacing = gapBetweenLines
-        val currentScrollX = scrollX
-        snappedPosition = (currentScrollX + lineSpacing / 2) / lineSpacing
-        return snappedPosition
-    }
-
 
     // Calculate rulerValue based on initialXValue
     private fun calculateRulerValue(initialXValue: Float): Int {
@@ -514,14 +459,6 @@ class ScrollableRulerViewStopOnLine(context: Context, attrs: AttributeSet?) : Vi
         }
     }
 
-
-    private fun calculateInitialXValue(rulerValue: Int): Float {
-        return (middleOfScreen - (rulerValue - rulerStartValue) * gapBetweenLines).apply {
-            "%.1f".format(this).toFloat()
-        }
-    }
-
-
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
         val height = (topGap + lineHeight + padding + legendTextSize + (padding * 3)).roundToInt()
         val width = MeasureSpec.getSize(widthMeasureSpec)
@@ -531,7 +468,7 @@ class ScrollableRulerViewStopOnLine(context: Context, attrs: AttributeSet?) : Vi
 
 }
 
-/*interface OnRulerValueChangeListener {
+interface OnRulerValueChangeListener {
     fun onRulerValueChanged(rulerValue: Int)
 }
 
@@ -540,4 +477,4 @@ interface ScrollableRulerFormatter {
     fun getRulerValue(index: Int): String
     fun getMarkerValue(index: Int): String
 
-}*/
+}
