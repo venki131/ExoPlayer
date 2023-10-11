@@ -23,8 +23,6 @@ class SamplePagingSource(
     }
 
     val videoList = listOf(
-        /*"https://storage.googleapis.com/exoplayer-test-media-0/BigBuckBunny_320x180.mp4",
-        "https://storage.googleapis.com/exoplayer-test-media-0/Jazz_In_Paris.mp3",*/
         "https://storage.googleapis.com/stockgro-feed-assets-qa/post_media/428de1c3-03d2-46a5-a5b8-2bab2eca9850.mp4",
         "https://storage.googleapis.com/stockgro-feed-assets-qa/post_media/5b007f34-5ecb-4d0f-8972-fa643ad528b5.mp4",
         "https://storage.googleapis.com/stockgro-feed-assets-qa/post_media/07ef8030-d627-47bc-a09d-b0a34514c3f8.mp4",

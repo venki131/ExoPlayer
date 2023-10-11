@@ -123,22 +123,28 @@ class PlayerActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener {
     private val lifecycleOwner: LifecycleOwner = this
     private fun initRvAdapter() {
         recyclerView = viewBinding.videoRecyclerview
-        val videoList = mutableListOf(
-            getString(R.string.media_url_mp4),
-            null,
-            getString(R.string.media_url_mp3),
-            getString(R.string.media_url_mp4),
-            getString(R.string.media_url_mp3),
+        val videoUrls = listOf(
+            "https://storage.googleapis.com/stockgro-feed-assets-qa/post_media/428de1c3-03d2-46a5-a5b8-2bab2eca9850.mp4",
+            "https://storage.googleapis.com/stockgro-feed-assets-qa/post_media/5b007f34-5ecb-4d0f-8972-fa643ad528b5.mp4",
+            "https://storage.googleapis.com/stockgro-feed-assets-qa/post_media/07ef8030-d627-47bc-a09d-b0a34514c3f8.mp4",
+            "https://storage.googleapis.com/stockgro-feed-assets-qa/post_media/b5ad16e9-01d6-4a29-9b6f-cb68069f4d85.mp4",
+            "https://storage.googleapis.com/stockgro-feed-assets-qa/post_media/8f55abf0-ffd5-42d3-8253-64a28470ac9d.mp4"
         )
+
+        val repeatedVideoUrls = MutableList<String?>(50) {
+            videoUrls[it % videoUrls.size]
+        }
+
         val videoPlayer = VideoPlayer(this)
-        val adapter = VideoPagingAdapter(videoPlayer)
-        lifecycleScope.launch {
+        //val adapter = VideoPagingAdapter(videoPlayer)
+        val adapter = VideoRvAdapter(repeatedVideoUrls)
+        /*lifecycleScope.launch {
             lifecycle.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 model.pageList.collectLatest {
                     adapter.submitData(it)
                 }
             }
-        }
+        }*/
 
         recyclerView?.adapter = adapter
         val videoPlayScrollListener = VideoPlayScrollListener(lifecycleOwner, videoPlayer)
