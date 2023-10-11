@@ -17,17 +17,21 @@ class VideoRvAdapter(
         return VideoViewHolder(view)
     }
 
-    override fun getItemCount() = list.size
+    override fun getItemCount() = 50//list.size
 
     override fun onBindViewHolder(holder: VideoViewHolder, position: Int) {
         if (position == 3) {
             holder.showImage()
         }
-        /*holder.bind(list[position], currentPlaybackPos)
+        holder.bind(list[position], currentPlaybackPos)
         holder.bookmark.setOnClickListener {
-            currentPlaybackPos = holder.getPlaybackPos(videoPlayer)
+            currentPlaybackPos = holder.getPlaybackPos()
             notifyItemChanged(position)
-        }*/
+        }
+    }
+
+    override fun onViewRecycled(holder: VideoViewHolder) {
+        holder.releasePlayer()
     }
 }
 
