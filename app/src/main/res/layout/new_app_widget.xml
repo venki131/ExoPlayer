@@ -10,10 +10,22 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
         android:layout_margin="8dp"
         android:contentDescription="@string/appwidget_text"
         android:text="@string/appwidget_text"
         android:textSize="24sp"
         android:textStyle="bold|italic" />
+
+    <Button
+        android:id="@+id/open_activity_btn"
+        style="@style/Widget.ExoVideoPlayer.AppWidget.InnerView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:layout_below="@id/appwidget_text"
+        android:layout_centerHorizontal="true"
+        android:text="@string/appwidget_open"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        />
 </RelativeLayout>

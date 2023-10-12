@@ -12,7 +12,8 @@
     <string name="formatted_marker_text">%1$s | %2$s | %3$s%%</string>
     <string name="card_text">Sample Card Text</string>
     <string name="be_chart_data">BE Chart Data</string>
-    <string name="appwidget_text">EXAMPLE</string>
+    <string name="appwidget_text">Example Text</string>
+    <string name="appwidget_open">Open App</string>
     <string name="add_widget">Add widget</string>
     <string name="app_widget_description">This is an app widget description</string>
 </resources>

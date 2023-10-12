@@ -50,7 +50,7 @@ android {
 
 def mediaVersion = "1.0.1"
 def mp_chart_version = "v3.1.0"
-
+def workManager = "2.7.1"
 dependencies {
 
     implementation 'androidx.core:core-ktx:1.9.0'
@@ -87,6 +87,10 @@ dependencies {
     implementation ("com.squareup.okhttp3:okhttp:4.10.0")
 
     implementation 'com.github.PhilJay:MPAndroidChart:v3.1.0'
+
+    implementation "androidx.work:work-runtime:$workManager"
+    // Coroutine support for WorkManager
+    implementation "androidx.work:work-runtime-ktx:2.8.1"
 
     //implementation 'com.github.saeed-younus:finite-cover-flow:1.0.1'
 }

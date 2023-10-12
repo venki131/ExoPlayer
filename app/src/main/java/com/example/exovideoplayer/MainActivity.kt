@@ -502,7 +502,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            negativeChartValues.forEach {
+            /*negativeChartValues.forEach {
                 Log.w(
                     TAG,
                     "negativeChartValues  (${it.xValue}  ,  ${it.yValue})  for ${it.itemValue}"
@@ -513,7 +513,7 @@ class MainActivity : AppCompatActivity() {
                     TAG,
                     "positiveChartValues  (${it.xValue}  ,  ${it.yValue})  for ${it.itemValue}"
                 )
-            }
+            }*/
 
         }
 
@@ -648,7 +648,7 @@ class MainActivity : AppCompatActivity() {
             )
         )
 
-        negativeChartDataEntries.forEach {
+        /*negativeChartDataEntries.forEach {
             Log.d(
                 TAG,
                 "negative (${it.x}  ,  ${it.y})"
@@ -660,7 +660,7 @@ class MainActivity : AppCompatActivity() {
                 TAG,
                 "positive (${it.x}  ,  ${it.y})"
             )
-        }
+        }*/
 
         val dataSet1 = LineDataSet(positiveChartDataEntries, "Set-1")
         dataSet1.apply {
