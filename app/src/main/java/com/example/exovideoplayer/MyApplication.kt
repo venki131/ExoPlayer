@@ -3,14 +3,31 @@ package com.example.exovideoplayer
 import android.app.Application
 import android.content.Context
 import android.util.Log
+import androidx.hilt.work.HiltWorkerFactory
+import androidx.work.Configuration
 import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
+import com.example.exovideoplayer.home_screen_widget.MyWorkManager
 import com.google.android.material.color.DynamicColors
+import dagger.hilt.android.HiltAndroidApp
 import java.util.concurrent.TimeUnit
+import javax.inject.Inject
 
-class MyApplication: Application() {
+@HiltAndroidApp
+class MyApplication : Application(), Configuration.Provider {
+
+    @Inject
+    lateinit var workerFactory: HiltWorkerFactory
+
+
+    override fun getWorkManagerConfiguration(): Configuration {
+        return Configuration.Builder()
+            .setWorkerFactory(workerFactory)
+            .build()
+    }
 
     private val TAG = MyApplication::class.java.simpleName
     override fun onCreate() {
@@ -18,6 +35,7 @@ class MyApplication: Application() {
         DynamicColors.applyToActivitiesIfAvailable(this)
         setupPeriodicRequest()
     }
+
     private fun setupPeriodicRequest() {
         val sharedPreferences = getSharedPreferences("YourPreferencesName", Context.MODE_PRIVATE)
         val isWorkScheduled = sharedPreferences.getBoolean(PREF_KEY_WORK_SCHEDULED, false)
@@ -31,11 +49,15 @@ class MyApplication: Application() {
             val repeatInterval = TIME_PERIOD // Repeat every 15 minutes
             val periodicWorkRequest = PeriodicWorkRequestBuilder<MyWorkManager>(
                 repeatInterval, TimeUnit.MINUTES
-            )
-                .setConstraints(constraints)
+            ).setConstraints(constraints)
                 .build()
 
-            WorkManager.getInstance(this).enqueue(periodicWorkRequest)
+            WorkManager.getInstance(this)
+                .enqueueUniquePeriodicWork(
+                    MyWorkManager.WORK_NAME,
+                    ExistingPeriodicWorkPolicy.UPDATE,
+                    periodicWorkRequest
+                )
 
             // Mark the work as scheduled in shared preferences
             sharedPreferences.edit().putBoolean(PREF_KEY_WORK_SCHEDULED, true).apply()

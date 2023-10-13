@@ -13,4 +13,7 @@ interface PagingListApi {
         @Query("_start") start: Int,
         @Query("_limit") limit: Int? = 10,
     ): List<ListResponseDto>
+
+    @GET("/posts")
+    suspend fun getPosts(): List<Posts>
 }

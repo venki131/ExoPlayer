@@ -5,6 +5,7 @@ import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import com.example.exovideoplayer.data.remote.ListResponseDtoItem
 import com.example.exovideoplayer.data.remote.PagingListApi
+import com.example.exovideoplayer.data.remote.Posts
 import com.example.exovideoplayer.domain.repository.SamplePagingRepository
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
@@ -18,4 +19,8 @@ class SamplePagingRepositoryImpl @Inject constructor(
     ) {
         SamplePagingSource(api = pagingListApi)
     }.flow
+
+    override suspend fun getPosts(): List<Posts> {
+        return pagingListApi.getPosts()
+    }
 }

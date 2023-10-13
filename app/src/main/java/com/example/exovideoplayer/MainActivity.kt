@@ -3,7 +3,6 @@ package com.example.exovideoplayer
 import android.annotation.SuppressLint
 import android.graphics.Color
 import android.os.Bundle
-import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -67,73 +66,9 @@ class MainActivity : AppCompatActivity() {
 
         }
         addItems()
-        showScrollWidget()
+        scrollViewStopOnLineScroller()
         output = computeBreakEvenChartOutputData(inputData)
         drawLineChart()
-    }
-
-
-    private fun showScrollWidget() {
-        viewBinding.showScrollWidgetBtn.setOnClickListener {
-            viewBinding.scrollableRulerSmoothScroller.visibility = View.VISIBLE
-            viewBinding.smootText.visibility = View.VISIBLE
-
-            viewBinding.scrollableRulerSnapper.visibility = View.GONE
-            viewBinding.snapText.visibility = View.GONE
-
-            viewBinding.scrollableRuler.visibility = View.GONE
-            viewBinding.recentText.visibility = View.GONE
-
-            viewBinding.scrollableRulerStopOnlineScroller.visibility = View.GONE
-            viewBinding.stopOnlineText.visibility = View.GONE
-            scrollViewSmoothScroller()
-        }
-
-        viewBinding.showScrollWidgetSnapperBtn.setOnClickListener {
-            viewBinding.scrollableRulerSnapper.visibility = View.VISIBLE
-            viewBinding.snapText.visibility = View.VISIBLE
-
-            viewBinding.scrollableRuler.visibility = View.GONE
-            viewBinding.recentText.visibility = View.GONE
-
-            viewBinding.scrollableRulerSmoothScroller.visibility = View.GONE
-            viewBinding.smootText.visibility = View.GONE
-
-            viewBinding.scrollableRulerStopOnlineScroller.visibility = View.GONE
-            viewBinding.stopOnlineText.visibility = View.GONE
-            scrollViewSnapper()
-        }
-
-        viewBinding.showScrollWidgetRecentBtn.setOnClickListener {
-            viewBinding.scrollableRuler.visibility = View.VISIBLE
-            viewBinding.recentText.visibility = View.VISIBLE
-
-            viewBinding.scrollableRulerSnapper.visibility = View.GONE
-            viewBinding.snapText.visibility = View.GONE
-
-            viewBinding.scrollableRulerSmoothScroller.visibility = View.GONE
-            viewBinding.smootText.visibility = View.GONE
-
-            viewBinding.scrollableRulerStopOnlineScroller.visibility = View.GONE
-            viewBinding.stopOnlineText.visibility = View.GONE
-            scrollView()
-        }
-
-        viewBinding.showScrollWidgetStopOnlineBtn.setOnClickListener {
-            viewBinding.scrollableRuler.visibility = View.GONE
-            viewBinding.recentText.visibility = View.GONE
-
-            viewBinding.scrollableRulerSnapper.visibility = View.GONE
-            viewBinding.snapText.visibility = View.GONE
-
-            viewBinding.scrollableRulerSmoothScroller.visibility = View.GONE
-            viewBinding.smootText.visibility = View.GONE
-
-            viewBinding.scrollableRulerStopOnlineScroller.visibility = View.VISIBLE
-            viewBinding.stopOnlineText.visibility = View.VISIBLE
-
-            scrollViewStopOnLineScroller()
-        }
     }
 
     private fun addItems() {
@@ -182,42 +117,6 @@ class MainActivity : AppCompatActivity() {
                 parentStockPrice = 1498.35
             )
         )
-    }
-
-    private fun scrollView() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                val scrollRuler = viewBinding.scrollableRuler
-                scrollRuler.rulerStartValue = 0
-                scrollRuler.rulerEndValue = 100
-                scrollRuler.moveToIndex(20)
-                scrollRuler.enableShadow(false)
-            }
-        }
-    }
-
-    private fun scrollViewSnapper() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                val scrollRuler = viewBinding.scrollableRulerSnapper
-                scrollRuler.rulerStartValue = 0
-                scrollRuler.rulerEndValue = 100
-                scrollRuler.moveToIndex(20)
-                scrollRuler.enableShadow(false)
-            }
-        }
-    }
-
-    private fun scrollViewSmoothScroller() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                val scrollRuler = viewBinding.scrollableRulerSmoothScroller
-                scrollRuler.rulerStartValue = 0
-                scrollRuler.rulerEndValue = 100
-                scrollRuler.moveToIndex(20)
-                scrollRuler.enableShadow(false)
-            }
-        }
     }
 
     private fun scrollViewStopOnLineScroller() {
@@ -502,19 +401,6 @@ class MainActivity : AppCompatActivity() {
                 }
             }
 
-            /*negativeChartValues.forEach {
-                Log.w(
-                    TAG,
-                    "negativeChartValues  (${it.xValue}  ,  ${it.yValue})  for ${it.itemValue}"
-                )
-            }
-            positiveChartValues.forEach {
-                Log.d(
-                    TAG,
-                    "positiveChartValues  (${it.xValue}  ,  ${it.yValue})  for ${it.itemValue}"
-                )
-            }*/
-
         }
 
 
@@ -647,20 +533,6 @@ class MainActivity : AppCompatActivity() {
                 breakEvenChartOutputData.maxProfitMarkerPointValue
             )
         )
-
-        /*negativeChartDataEntries.forEach {
-            Log.d(
-                TAG,
-                "negative (${it.x}  ,  ${it.y})"
-            )
-        }
-
-        positiveChartDataEntries.forEach {
-            Log.d(
-                TAG,
-                "positive (${it.x}  ,  ${it.y})"
-            )
-        }*/
 
         val dataSet1 = LineDataSet(positiveChartDataEntries, "Set-1")
         dataSet1.apply {

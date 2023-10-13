@@ -1,13 +1,13 @@
-package com.example.exovideoplayer
+package com.example.exovideoplayer.home_screen_widget
 
 import android.app.PendingIntent
 import android.appwidget.AppWidgetManager
 import android.appwidget.AppWidgetProvider
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.os.Bundle
 import android.widget.RemoteViews
+import com.example.exovideoplayer.MainActivity
+import com.example.exovideoplayer.R
 
 /**
  * Implementation of App Widget functionality.
@@ -31,29 +31,13 @@ class NewAppWidget : AppWidgetProvider() {
     override fun onDisabled(context: Context) {
         // Enter relevant functionality for when the last widget is disabled
     }
-
-    /*override fun onReceive(context: Context, intent: Intent) {
-        super.onReceive(context, intent)
-
-        if (intent.action == "ACTION_API_RESPONSE") {
-            // Get data from the broadcast
-            val data = intent.getStringExtra("data")
-
-            // Update widget UI with the received data
-            val appWidgetManager = AppWidgetManager.getInstance(context)
-            val widgetIds = appWidgetManager.getAppWidgetIds(ComponentName(context, NewAppWidget::class.java))
-            for (widgetId in widgetIds) {
-                updateAppWidget(context, appWidgetManager, widgetId, data)
-            }
-        }
-    }*/
 }
 
 internal fun updateAppWidget(
     context: Context,
     appWidgetManager: AppWidgetManager,
     appWidgetId: Int,
-    //widgetText: String? = null
+    widgetText: String? = context.getString(R.string.appwidget_text)
 ) {
     // Create an Intent to launch ExampleActivity.
     val pendingIntent: PendingIntent = PendingIntent.getActivity(
@@ -63,7 +47,7 @@ internal fun updateAppWidget(
         /* flags = */ PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
     )
 
-    val widgetText = context.getString(R.string.appwidget_text)
+    //val widgetText = context.getString(R.string.appwidget_text)
     // Construct the RemoteViews object
     val views = RemoteViews(context.packageName, R.layout.new_app_widget)
     views.setTextViewText(R.id.appwidget_text, widgetText)
@@ -73,4 +57,5 @@ internal fun updateAppWidget(
 
     // Instruct the widget manager to update the widget
     appWidgetManager.updateAppWidget(appWidgetId, views)
+
 }
