@@ -100,7 +100,7 @@ dependencies {
     implementation "androidx.work:work-runtime:$workManager"
     // Coroutine support for WorkManager
     implementation "androidx.work:work-runtime-ktx:2.8.1"
-
+    implementation 'androidx.hilt:hilt-work:1.0.0'
     //implementation 'com.github.saeed-younus:finite-cover-flow:1.0.1'
 
 
