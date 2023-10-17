@@ -29,11 +29,11 @@
             android:name=".MainActivity"
             android:exported="true"
             android:theme="@style/AppThemeCustom">
-            <intent-filter>
+            <!--<intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            </intent-filter>-->
         </activity>
         <activity
             android:name=".SecondActivity"
@@ -51,6 +51,11 @@
             android:hardwareAccelerated="true"
             android:label="@string/player_activity_name"
             android:theme="@style/PlayerTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
 
         <meta-data

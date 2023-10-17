@@ -40,4 +40,7 @@ class VideoViewHolder(
     fun showImage() {
         gImg.visibility = View.VISIBLE
     }
+    fun hideImage() {
+        gImg.visibility = View.GONE
+    }
 }
