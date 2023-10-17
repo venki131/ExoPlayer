@@ -56,7 +56,6 @@ def coroutines_version = "1.6.1"
 def kotlin_version = "1.6.21"
 def mp_chart_version = "v3.1.0"
 def workManager = "2.7.1"
-def paging_version = "3.2.1"
 dependencies {
 
     implementation 'androidx.core:core-ktx:1.9.0'
