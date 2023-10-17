@@ -1,8 +1,7 @@
 package com.example.exovideoplayer.domain.repository
 
 import androidx.paging.PagingData
-import com.example.exovideoplayer.data.remote.ListResponseDtoItem
-import com.example.exovideoplayer.data.remote.Posts
+import com.example.exovideoplayer.domain.data.Posts
 import kotlinx.coroutines.flow.Flow
 
 interface SamplePagingRepository {

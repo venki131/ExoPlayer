@@ -2,12 +2,10 @@ package com.example.exovideoplayer.data.repository
 
 import androidx.paging.Pager
 import androidx.paging.PagingConfig
-import androidx.paging.PagingData
-import com.example.exovideoplayer.data.remote.ListResponseDtoItem
 import com.example.exovideoplayer.data.remote.PagingListApi
-import com.example.exovideoplayer.data.remote.Posts
+import com.example.exovideoplayer.data.remote.toPosts
+import com.example.exovideoplayer.domain.data.Posts
 import com.example.exovideoplayer.domain.repository.SamplePagingRepository
-import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class SamplePagingRepositoryImpl @Inject constructor(
@@ -21,6 +19,6 @@ class SamplePagingRepositoryImpl @Inject constructor(
     }.flow
 
     override suspend fun getPosts(): List<Posts> {
-        return pagingListApi.getPosts()
+        return pagingListApi.getPosts().map { it.toPosts() }
     }
 }

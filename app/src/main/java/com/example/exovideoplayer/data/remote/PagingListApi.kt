@@ -1,7 +1,6 @@
 package com.example.exovideoplayer.data.remote
 
 import retrofit2.http.GET
-import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface PagingListApi {
@@ -15,5 +14,5 @@ interface PagingListApi {
     ): List<ListResponseDto>
 
     @GET("/posts")
-    suspend fun getPosts(): List<Posts>
+    suspend fun getPosts(): List<PostsDto>
 }
