@@ -1,4 +1,4 @@
-package com.example.exovideoplayer
+package com.example.exovideoplayer.ui.fnochart
 
 import android.annotation.SuppressLint
 import android.graphics.Color
@@ -10,9 +10,15 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import com.example.exovideoplayer.R
+import com.example.exovideoplayer.ThemeManager
 import com.example.exovideoplayer.ThemeManager.isDarkModeEnabled
 import com.example.exovideoplayer.ThemeManager.saveThemePreference
 import com.example.exovideoplayer.databinding.ActivityMainBinding
+import com.example.exovideoplayer.round
+import com.example.exovideoplayer.strikepricewidget.model.BEChartData
+import com.example.exovideoplayer.strikepricewidget.model.BreakEvenChartInputData
+import com.example.exovideoplayer.strikepricewidget.model.BreakEvenChartOutputData
 import com.github.mikephil.charting.animation.Easing
 import com.github.mikephil.charting.charts.LineChart
 import com.github.mikephil.charting.components.LimitLine
@@ -69,6 +75,11 @@ class MainActivity : AppCompatActivity() {
         scrollViewStopOnLineScroller()
         output = computeBreakEvenChartOutputData(inputData)
         drawLineChart()
+
+        viewBinding.customText.addIgnoredView(viewBinding.text1)
+        viewBinding.customText.addIgnoredView(viewBinding.googleImg)
+        //viewBinding.customText.removeIgnoredView(viewBinding.googleImg)
+        viewBinding.customText.disabled = true
     }
 
     private fun addItems() {

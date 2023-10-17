@@ -1,4 +1,4 @@
-package com.example.exovideoplayer
+package com.example.exovideoplayer.strikepricewidget
 
 /*import com.assetgro.stockgro.R
 import com.assetgro.stockgro.utils.common.topx
@@ -25,6 +25,8 @@ import android.view.animation.LinearInterpolator
 import android.widget.Scroller
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import com.example.exovideoplayer.R
+import com.example.exovideoplayer.topx
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay

@@ -1,4 +1,4 @@
-package com.example.exovideoplayer
+package com.example.exovideoplayer.strikepricewidget.model
 
 data class BEChartData(
     val xValue: Int,

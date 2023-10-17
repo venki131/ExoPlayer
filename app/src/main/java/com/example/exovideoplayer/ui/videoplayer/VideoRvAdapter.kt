@@ -1,4 +1,4 @@
-package com.example.exovideoplayer.ui
+package com.example.exovideoplayer.ui.videoplayer
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -29,11 +29,11 @@ class VideoRvAdapter(
         } else {
             holder.hideImage()
         }
-        /*holder.bind(list[position], currentPlaybackPos)
+        holder.bind(list[position], currentPlaybackPos)
         holder.bookmark.setOnClickListener {
-            currentPlaybackPos = holder.getPlaybackPos(videoPlayer)
+            currentPlaybackPos = holder.getPlaybackPos()
             notifyItemChanged(position)
-        }*/
+        }
     }
 
     override fun onViewRecycled(holder: VideoViewHolder) {

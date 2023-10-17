@@ -1,4 +1,6 @@
-package com.example.exovideoplayer
+package com.example.exovideoplayer.strikepricewidget.model
+
+import com.example.exovideoplayer.strikepricewidget.model.BEChartData
 
 data class BreakEvenChartOutputData(
     val maxY: Double,

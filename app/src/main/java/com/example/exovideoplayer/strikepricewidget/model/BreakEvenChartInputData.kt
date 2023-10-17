@@ -1,4 +1,6 @@
-package com.example.exovideoplayer
+package com.example.exovideoplayer.strikepricewidget.model
+
+import com.example.exovideoplayer.ui.fnochart.OptionType
 
 data class BreakEvenChartInputData(
     val isSell: Boolean,

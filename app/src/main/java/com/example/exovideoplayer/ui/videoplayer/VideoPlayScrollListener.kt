@@ -1,4 +1,4 @@
-package com.example.exovideoplayer.ui
+package com.example.exovideoplayer.ui.videoplayer
 
 import android.content.res.Resources
 import android.graphics.Rect

@@ -1,4 +1,4 @@
-package com.example.exovideoplayer.ui
+package com.example.exovideoplayer.ui.videoplayer
 
 import android.content.Context
 import android.util.AttributeSet

@@ -1,4 +1,4 @@
-package com.example.exovideoplayer.ui
+package com.example.exovideoplayer.ui.videoplayer
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel

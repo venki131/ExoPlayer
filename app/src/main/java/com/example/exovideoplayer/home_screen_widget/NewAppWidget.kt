@@ -6,7 +6,7 @@ import android.appwidget.AppWidgetProvider
 import android.content.Context
 import android.content.Intent
 import android.widget.RemoteViews
-import com.example.exovideoplayer.MainActivity
+import com.example.exovideoplayer.ui.fnochart.MainActivity
 import com.example.exovideoplayer.R
 
 /**

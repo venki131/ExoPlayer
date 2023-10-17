@@ -1,4 +1,4 @@
-package com.example.exovideoplayer
+package com.example.exovideoplayer.ui.fnochart
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -15,6 +15,11 @@ import android.util.Log
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
+import com.example.exovideoplayer.R
+import com.example.exovideoplayer.dpToPx
+import com.example.exovideoplayer.round
+import com.example.exovideoplayer.strikepricewidget.model.BEChartData
+import com.example.exovideoplayer.strikepricewidget.model.BreakEvenChartInputData
 import com.github.mikephil.charting.components.MarkerView
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.LineDataSet

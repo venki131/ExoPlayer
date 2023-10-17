@@ -1,4 +1,4 @@
-package com.example.exovideoplayer.ui
+package com.example.exovideoplayer.ui.videoplayer
 
 import android.os.Bundle
 import androidx.activity.viewModels
@@ -8,11 +8,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.exovideoplayer.databinding.ActivityPlayerBinding
 import dagger.hilt.android.AndroidEntryPoint
 
-/**
- * A fullscreen activity to play audio or video streams.
- */
-
-private const val TAG = "PlayerActivity"
 @AndroidEntryPoint
 class PlayerActivity : AppCompatActivity() {
 
