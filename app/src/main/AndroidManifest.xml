@@ -6,6 +6,7 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="com.android.launcher.permission.INSTALL_SHORTCUT" />
 
     <application
         android:name=".MyApplication"
@@ -25,15 +26,63 @@
                 android:resource="@xml/new_app_widget_info" />
         </receiver>
 
+        <activity-alias
+            android:name="com.example.exovideoplayer.dynamic_icon.OneLauncherAlias"
+            android:enabled="true"
+            android:icon="@drawable/one"
+            android:exported="true"
+            android:label="One"
+            android:theme="@style/AppThemeCustom"
+            android:targetActivity=".dynamic_icon.DynamicIconActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name="com.example.exovideoplayer.dynamic_icon.TwoLauncherAlias"
+            android:enabled="false"
+            android:label="Two"
+            android:icon="@drawable/two"
+            android:exported="true"
+            android:theme="@style/AppThemeCustom"
+            android:targetActivity=".dynamic_icon.DynamicIconActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+
+        <activity-alias
+            android:name="com.example.exovideoplayer.dynamic_icon.ThreeLauncherAlias"
+            android:enabled="false"
+            android:label="Three"
+            android:icon="@drawable/three"
+            android:exported="true"
+            android:theme="@style/AppThemeCustom"
+            android:targetActivity=".dynamic_icon.DynamicIconActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+        </activity-alias>
+
+        <activity
+            android:name=".dynamic_icon.DynamicIconActivity"
+            android:exported="true"
+            android:theme="@style/AppThemeCustom"/>
+
+
         <activity
             android:name=".ui.fnochart.MainActivity"
             android:exported="true"
             android:theme="@style/AppThemeCustom">
-            <intent-filter>
+            <!--<intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+            </intent-filter>-->
         </activity>
         <activity
             android:name=".SecondActivity"
