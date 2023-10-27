@@ -6,5 +6,30 @@ Refer to App Widget Documentation for margin information
 http://developer.android.com/guide/topics/appwidgets/index.html#CreatingLayout
     -->
     <dimen name="widget_margin">0dp</dimen>
+    <dimen name="margin_two_dp">2dp</dimen>
+    <dimen name="margin_three_dp">3dp</dimen>
+    <dimen name="margin_four_dp">4dp</dimen>
+    <dimen name="margin_five_dp">5dp</dimen>
+    <dimen name="margin_eight_dp">8dp</dimen>
+    <dimen name="margin_ten_dp">10dp</dimen>
+    <dimen name="margin_fifteen_dp">15dp</dimen>
+    <dimen name="margin_sixteen_dp">16dp</dimen>
+    <dimen name="margin_twenty_dp">20dp</dimen>
+    <dimen name="margin_thirty_dp">30dp</dimen>
+    <dimen name="margin_thirty_two_dp">32dp</dimen>
+    <dimen name="margin_forty_dp">40p</dimen>
+    <dimen name="margin_forty_eight_dp">48dp</dimen>
+    <dimen name="margin_fifty_dp">50dp</dimen>
+    <dimen name="margin_two_hundred_dp">200dp</dimen>
 
+    <!--text size-->
+    <dimen name="two_sp">2sp</dimen>
+    <dimen name="fourteen_sp">14sp</dimen>
+    <dimen name="sixteen_sp">16sp</dimen>
+    <dimen name="eighteen_sp">18sp</dimen>
+    <dimen name="twenty_sp">20sp</dimen>
+    <dimen name="twenty_two_sp">22sp</dimen>
+    <dimen name="twenty_five_sp">25sp</dimen>
+    <dimen name="thirty_five_sp">35sp</dimen>
+    <dimen name="thirty_sp">30sp</dimen>
 </resources>

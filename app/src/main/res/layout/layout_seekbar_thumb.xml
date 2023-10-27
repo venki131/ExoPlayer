@@ -7,8 +7,8 @@
     <!-- Circular icon view -->
     <ImageView
         android:id="@+id/seekBarThumb"
-        android:layout_width="48dp"
-        android:layout_height="48dp"
+        android:layout_width="@dimens/margin_forty_eight_dp"
+        android:layout_height="@dimens/margin_forty_eight_dp"
         android:src="@drawable/ic_circle"
         android:layout_gravity="center" />
 </FrameLayout>
