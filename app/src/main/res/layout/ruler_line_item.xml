@@ -7,9 +7,9 @@
 
     <View
         android:id="@+id/line"
-        android:layout_width="2dp"
-        android:layout_height="32dp"
-        android:layout_marginStart="8dp"
+        android:layout_width="@dimens/margin_two_dp"
+        android:layout_height="@dimens/margin_thirty_two_dp"
+        android:layout_marginStart="@dimens/margin_eight_dp"
         android:background="@color/purple_text"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
