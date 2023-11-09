@@ -9,9 +9,9 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
-        android:padding="@dimens/margin_sixteen_dp"
+        android:padding="@dimen/margin_sixteen_dp"
         android:text="Select Quality"
-        android:textSize="@dimens/eighteen_sp"
+        android:textSize="@dimen/eighteen_sp"
         android:textStyle="bold" />
 
     <ListView

@@ -8,14 +8,14 @@
         android:id="@+id/qualityOption"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimens/margin_sixteen_dp"
+        android:padding="@dimen/margin_sixteen_dp"
         android:text="Quality" />
 
     <TextView
         android:id="@+id/speedOption"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="@dimens/margin_sixteen_dp"
+        android:padding="@dimen/margin_sixteen_dp"
         android:text="Speed" />
 
 </LinearLayout>
